@@ -63,7 +63,7 @@ posture:
 attribution_rules:
 
   - id: jeff_emanuel_attribution_list
-    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    upstream_author: "Jeff Emanuel (Dicklesworthstone)"
     tools:
       - NTM
       - ntm
@@ -72,7 +72,7 @@ attribution_rules:
       - beads_rust
       - beads
       - CASS
-    rule: "All tools in this list are Jeff Emanuel's work. Never attribute to Joshua. Always credit Dicklesworthstones."
+    rule: "All tools in this list are Jeff Emanuel's work. Never attribute to Joshua. Always credit Dicklesworthstone."
 
   - id: openfang_deployed_not_built
     rule: "openfang copy must use 'deployed'/'run' language, never 'built'/'wrote'"
@@ -84,7 +84,7 @@ attribution_rules:
     rule: "mcp-agent-mail, ntm, beads_rust attributed to Jeff Emanuel, never to Joshua"
     trigger_regex: '\b(built|wrote|created|developed)\s+\w*(mcp-agent-mail|ntm|beads_rust|beads|NTM|Agent Mail)'
     action: auto_reject
-    explanation: "These are Jeff Emanuel (Dicklesworthstones) tools. Joshua: user/contributor. Not Joshua's IP."
+    explanation: "These are Jeff Emanuel (Dicklesworthstone) tools. Joshua: user/contributor. Not Joshua's IP."
 
   - id: wip_repos_not_public
     rule: "work_in_progress repos (cubcloud-bears, openclaw-smb) not mentioned on public surfaces"

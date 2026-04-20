@@ -1196,14 +1196,14 @@ repos:
     last_verified: "2026-04-19"
 
   # --------------------------------------------------------------------------
-  # external_tool — Jeff Emanuel (Dicklesworthstones) tools; NEVER attribute to Joshua
+  # external_tool — Jeff Emanuel (Dicklesworthstone) tools; NEVER attribute to Joshua
   # --------------------------------------------------------------------------
 
   - name: mcp-agent-mail
-    current_host: "GitHub JYeswak/ (fork) + upstream Dicklesworthstones"
+    current_host: "GitHub JYeswak/ (fork) + upstream Dicklesworthstone"
     target_host: "upstream"
     repo_scope: external_tool
-    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    upstream_author: "Jeff Emanuel (Dicklesworthstone)"
     joshua_role: user
     built_solo_by_joshua: false
     status: shipped
@@ -1214,9 +1214,9 @@ repos:
 
   - name: ntm
     current_host: "Gitea jzest/"
-    target_host: "upstream Dicklesworthstones"
+    target_host: "upstream Dicklesworthstone"
     repo_scope: external_tool
-    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    upstream_author: "Jeff Emanuel (Dicklesworthstone)"
     joshua_role: contributor
     built_solo_by_joshua: false
     size_kb: 41000
@@ -1227,10 +1227,10 @@ repos:
     context: "Named tmux manager. Joshua: 31 of 2,311 commits (contributor, not author). NEVER claim as Joshua IP."
 
   - name: beads_rust
-    current_host: "upstream Dicklesworthstones"
+    current_host: "upstream Dicklesworthstone"
     target_host: "upstream"
     repo_scope: external_tool
-    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    upstream_author: "Jeff Emanuel (Dicklesworthstone)"
     joshua_role: user
     built_solo_by_joshua: false
     status: shipped

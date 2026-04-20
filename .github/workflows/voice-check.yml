@@ -1,0 +1,53 @@
+name: Voice check
+
+on:
+  pull_request:
+    paths:
+      - '**.md'
+      - 'skills/brand-voice/brands/**'
+  push:
+    branches: [main]
+
+jobs:
+  voice-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install zeststream-voice
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: STEP 0 — banned-word + Joshua-canonical scan
+        run: |
+          python -m zeststream_voice enforce \
+            --path . \
+            --brand zeststream \
+            --fail-under 95 \
+            --exclude 'skills/brand-voice/brands/**' \
+            --exclude 'examples/before-after/**' \
+            || exit 1
+
+      - name: YAML parse check (config integrity)
+        run: |
+          python - <<'EOF'
+          import sys, yaml
+          for p in [
+              "skills/brand-voice/brands/zeststream/voice.yaml",
+              "skills/brand-voice/data/capabilities-ground-truth.yaml",
+          ]:
+              try:
+                  yaml.safe_load(open(p))
+                  print(f"OK: {p}")
+              except Exception as e:
+                  print(f"FAIL: {p}: {e}", file=sys.stderr)
+                  sys.exit(1)
+          EOF
+
+      - name: Tests
+        run: pytest tests/ -q
