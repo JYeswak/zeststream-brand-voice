@@ -1,0 +1,53 @@
+---
+# ZestStream Brand Voice — local settings
+# Copy this file to settings.local.md (same directory) and fill in values.
+# Ported from anthropics/knowledge-work-plugins, adapted for ZestStream.
+
+brand: zeststream
+
+enforcement:
+  strictness: strict          # strict | balanced | flexible
+  always-explain: true        # include "Voice decisions" note with every rewrite
+  auto-reject-ungrounded: true   # unmatched claims blocked (never relax for zeststream)
+  auto-reject-banned: true    # banned-word hit blocks (never relax for zeststream)
+
+scorer:
+  ship_threshold: 95
+  regen_threshold: 85
+  any_dim_floor: 9
+  primary_model: "claude-sonnet-4-6"
+  bulk_model: "grok-4-1-fast-reasoning"
+  temperature: 0
+
+grounding:
+  require_source_in: ["capabilities-ground-truth.yaml"]
+  stale_days_warning: 30      # warn, not block
+  vague_quantifier_reject: true
+
+open_questions:
+  share_with_team: false
+
+drift:
+  cron_probe_wave_a: true
+  drift_block_threshold: 3    # ≥3/10 ticks in window → write .ecosystem/STOP
+---
+
+# Context overrides (optional)
+
+## Canon override
+Use the shorter `/about` variant ("I'm Joshua. I build things that work.") in place of full canon only on: `/about` hero.
+
+## Audience weighting this quarter
+Primary: customer (70%)
+Secondary: operator (20%)
+Tertiary: candidate, general (10%)
+
+## Known session context
+- `/consult` is live at bff36d3e as of 2026-04-19
+- 96 n8n workflows live at n8n.zeststream.ai (re-verify monthly)
+- CubCloud vendor-architect engagement active
+
+## Watched drift patterns
+- Em-dash as dramatic pause (re-appearing in body copy)
+- "Our team" slipping in from client-facing templates
+- Pricing hedged ("around $5k") instead of precise ($5,000 fixed)

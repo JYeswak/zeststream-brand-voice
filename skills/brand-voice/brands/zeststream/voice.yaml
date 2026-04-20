@@ -1,0 +1,687 @@
+# ZestStream brand voice — machine-checkable constants
+# The enforceable core. Changes to this file ripple to every scorer, probe, and prompt.
+# Version this file in git. Never edit on a running CI job.
+
+brand:
+  slug: zeststream
+  name: ZestStream
+  operator: "Joshua Nowak"
+  operator_variants_banned: ["Josh", "Josh Nowak"]  # trauma 2026-04-19: canonical is always Joshua
+  domain: "zeststream.ai"
+  source_of_truth: "/Users/josh/Developer/zesttube/.planning/capabilities-brief.md"
+  ground_truth: "/Users/josh/.claude/skills/zeststream-brand-voice/data/capabilities-ground-truth.yaml"
+
+# ============================================================================
+# CANON — verbatim, never paraphrased
+# ============================================================================
+canon:
+  primary: "I build things that work, and I show you the receipt."
+  variants_approved:
+    - "I'm Joshua. I build things that work."
+    - "Most consultants hand you a slide deck and leave. I hand you a working system."
+  rule: "Primary canon appears verbatim at least once per top-level route. Variants allowed on /about opener."
+
+method:
+  name_full: "Peel. Press. Pour.™"
+  name_registered: "The Yuzu Method ®"
+  phases:
+    peel:
+      duration: "Week 1 (5 business days)"
+      role: "Discovery"
+      japanese_root: "3 Mus (Muri overwork / Muda waste / Mura inconsistency)"
+      milestone_quote: "We finally see what's actually happening in our operations."
+    press:
+      duration: "Weeks 2–8"
+      role: "Build"
+      japanese_root: "Monozukuri (craftsmanship)"
+      milestone_quote: "We're already saving 15+ hours per week, and the main system isn't even done yet."
+    pour:
+      duration: "Launch + ongoing"
+      role: "Deploy + optimize (kaizen)"
+      japanese_root: "Kaizen (continuous improvement)"
+      milestone_quote: "We're running 85% automated, and we know exactly how to improve the rest."
+  phase_not_gate: true  # Never conflate phases with the 5 gates (TESTABLE/SECURE/FUN/VALUABLE/EASY)
+
+# ============================================================================
+# IDENTITY POSTURE
+# ============================================================================
+posture:
+  voice: "first-person singular"
+  pronouns_allowed: ["I", "me", "my", "you", "your"]
+  pronouns_banned: ["we", "our", "our team", "us"]  # ZestStream is Joshua solo
+  permitted_exceptions:
+    - context: "named prior-company collective action"
+      example: "we sold the company"
+      where_allowed: "origin_story_surfaces"
+      rationale: "Joshua was part of the ZIRKEL collective when sold July 2024; 'we' is accurate there"
+  attribution_rule: "Jeff Emanuel's work (NTM, Agent Mail, beads, CASS) always attributed. Meadows always cited."
+
+# ============================================================================
+# ATTRIBUTION RULES — machine-enforced (Session 14, 2026-04-19)
+# These extend the posture.attribution_rule with per-tool regex enforcement.
+# ============================================================================
+attribution_rules:
+
+  - id: jeff_emanuel_attribution_list
+    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    tools:
+      - NTM
+      - ntm
+      - mcp-agent-mail
+      - Agent Mail
+      - beads_rust
+      - beads
+      - CASS
+    rule: "All tools in this list are Jeff Emanuel's work. Never attribute to Joshua. Always credit Dicklesworthstones."
+
+  - id: openfang_deployed_not_built
+    rule: "openfang copy must use 'deployed'/'run' language, never 'built'/'wrote'"
+    trigger_regex: '\b(built|wrote|created|developed)\s+\w*openfang'
+    action: auto_reject
+    explanation: "openfang is RightNow-AI upstream. Joshua deployed it; he did not build it."
+
+  - id: jeff_tools_not_joshua
+    rule: "mcp-agent-mail, ntm, beads_rust attributed to Jeff Emanuel, never to Joshua"
+    trigger_regex: '\b(built|wrote|created|developed)\s+\w*(mcp-agent-mail|ntm|beads_rust|beads|NTM|Agent Mail)'
+    action: auto_reject
+    explanation: "These are Jeff Emanuel (Dicklesworthstones) tools. Joshua: user/contributor. Not Joshua's IP."
+
+  - id: wip_repos_not_public
+    rule: "work_in_progress repos (cubcloud-bears, openclaw-smb) not mentioned on public surfaces"
+    trigger_regex: '\b(cubcloud-bears|openclaw-smb)\b'
+    action: auto_reject
+    explanation: "Both repos have approved_for_public: false. Not on V1 site."
+
+  - id: terratitle_frontend_caveat_required
+    rule: "terratitle frontend claims require caveat or must narrow to backend/database only"
+    trigger_regex: '\bterratitle\b.*\bfrontend\b|\bfrontend\b.*\bterratitle\b'
+    action: flag_for_review
+    explanation: "Backend/DB are 100% Joshua. Frontend: Joshua rebuilt from scratch but CubCloud-hired dev later contributed input. Claim must preserve caveat or narrow to backend-only."
+
+  - id: cfs_not_arms_length
+    rule: "CFS copy cannot frame engagement as arms-length cold client acquisition"
+    trigger_regex: '\b(ClutterFreeSpaces|Clutter Free Spaces|CFS)\b.*(cold|arms.length|arms-length|first.contact|unknown|stranger)'
+    action: auto_reject
+    explanation: "Chanel disclosure policy: CFS relationship is not arms-length. This framing is inaccurate."
+
+  - id: cubcloud_aaas_old_name_external
+    rule: "External-facing copy must use 'Remy' not 'cubcloud-aaas'"
+    trigger_regex: '\bcubcloud-aaas\b'
+    action: auto_reject
+    explanation: "cubcloud-aaas is the internal/historical name. Public name is Remy (remy.zeststream.ai). Internal YAML is exempt — this rule fires on copy surfaces only."
+    context: "rename_date: 2026-04-19. previous_internal_names: [cubcloud-aaas]. Rationale: product is Joshua's ZestStream IP, not cubcloud-scope."
+
+three_moves:
+  mandatory_on_conversion_surfaces: true
+  moves:
+    - id: name_person
+      rule: "Name Joshua (never faceless 'we', never 'Josh')"
+    - id: show_receipt
+      rule: "Show a number, repo link, benchmark, workflow count, SHA, or log line"
+    - id: invite_not_pitch
+      rule: "End with low-friction invitation (Peel session, map call, DM). Never 'Contact sales.'"
+
+# ============================================================================
+# BANNED WORDS — canonical consolidated list (resolves guidelines-vs-brief conflict)
+# Lexical grep. `replace_all` pre-commit. Case-insensitive, word-boundary anchored.
+# ============================================================================
+banned_words:
+  # Slide-deck consulting
+  - enterprise
+  - transformation
+  - orchestration
+  - platform
+  - ecosystem
+  - synergize
+  - synergy
+  - holistic
+  - turnkey
+  - "end-to-end"
+  - "cutting-edge"
+  - "state-of-the-art"
+  - "best-in-class"
+  - "next-generation"
+  - "mission-critical"
+  - paradigm
+  # Consultant tells
+  - handoff
+  - artifact
+  - stakeholder
+  - deliverable
+  - bandwidth
+  - "circle back"
+  - "touch base"
+  - operationalize
+  - actionable
+  - alignment
+  - "deep-dive"
+  # AI/marketing slop
+  - "harness the power"
+  - revolutionize
+  - "game-changing"
+  - seamless
+  - robust
+  - "move the needle"
+  - "boil the ocean"
+  - "low-hanging fruit"
+  - "at the end of the day"
+  - utilize  # say "use"
+  # Corporate filler
+  - "we're excited to announce"
+  - "proud to partner with"
+  - "our mission is to"
+  # Pronoun-specific (ZestStream only — Joshua solo)
+  - "our team"
+  - "ZestStream delivers"
+  - "we built"
+  - "we offer"
+
+banned_phrases:
+  - "Not just X but Y"
+  - "It's not X, it's Y"
+  - "In today's world"
+  - "In an era of"
+  - "empower" # verb form
+  - "unlock" # verb form, metaphorical
+  - "leverage" # verb form; noun allowed as in "leverage point"
+  - "streamline" # verb form
+
+# ============================================================================
+# CLAIMS RULES — the 2026-04-19 pivot's permanent fix
+# ============================================================================
+claims:
+  mode: "cite_or_omit"
+  ungrounded_auto_reject: true
+  vague_quantifier_auto_reject: true  # "roughly", "approximately", "about X%", "many clients"
+  testimonial_without_name: reject
+  capability_without_receipt: reject  # If no receipt exists, phrase as "I can wire this in"
+  ground_truth_source: "../../data/capabilities-ground-truth.yaml"
+  extraction:
+    patterns:
+      # Matches: "105 tok/s", "96 workflows", "23,188 chunks", "14 years", etc.
+      - '\b\d[\d,]*\s*(?:tok/s|workflows?|chunks?|years?|hours?|weeks?|months?|days?|GPUs?|containers?|scripts?)\b'
+      # Matches: "$5,000", "$15k", "$6-12k/mo"
+      - '\$[\d,]+(?:k|K)?(?:/mo|/month|/hr|/yr)?'
+      # Matches percentages
+      - '\b\d+(?:\.\d+)?%'
+      # Matches multipliers
+      - '\b\d+(?:\.\d+)?×|\b\d+x improvement'
+      # Explicit capability verbs
+      - '\b(?:built|rebuilt|tuned|deployed|shipped|wired)\b'
+
+# ============================================================================
+# SURFACE RULES (tone-by-context matrix; closes §F gap)
+# ============================================================================
+surfaces:
+  hero:
+    sentence_max_words: 18
+    paragraphs_max: 1
+    register: "direct, confident, inviting"
+    must_have: [canon_line_if_top_route, three_moves_compressed]
+  body:
+    sentence_max_words: 25
+    paragraph_max_sentences: 3
+    register: "builder-practical, technical-accessible"
+  cta:
+    sentence_max_words: 12
+    register: "concrete action, low friction"
+    max_per_page: 2
+  email:
+    sentence_max_words: 22
+    signoff: "— Joshua"
+    register: "warm-operator"
+  post:  # LinkedIn, Twitter, long-form social
+    sentence_max_words: 25
+    register: "builder-practical with narrative hook"
+    must_name_receipt: true
+  meta:  # page meta descriptions, OG tags
+    sentence_max_words: 20
+    character_max: 160
+    register: "declarative + specific"
+
+audiences:
+  operator:
+    register_adjust: "+specificity, +technical, +receipts"
+  candidate:
+    register_adjust: "+credibility, +resilience-story, mentions Montana"
+  customer:
+    register_adjust: "+invitation, +low-friction, +Peel session"
+  general:
+    register_adjust: "default — builder-practical"
+
+word_caps_per_route:
+  "/": 600
+  "/about": 1200
+  "/consult": 1200
+  "/yuzu-method": 1200
+  "/methods/*": 1800  # essays can breathe
+  default: 800
+
+# ============================================================================
+# TRADEMARK RENDERING (auto-reject if wrong)
+# ============================================================================
+trademarks:
+  yuzu_method:
+    first_use_per_asset: "The Yuzu Method ®"
+    bare_ok_after_first_use: true
+    never: ["The Yuzu Method", "Yuzu Method", "YUZU METHOD", "yuzu method"]  # bare
+  motto:
+    full: "Peel. Press. Pour.™"
+    period_between_words: required
+    tm_after: "Pour"
+  phase_names:
+    peel: "Peel"
+    press: "Press"
+    pour: "Pour"
+    as_section_header: "PEEL|PRESS|POUR caps allowed"
+  brand_names:
+    joshua: "Joshua Nowak"
+    never_joshua: ["Josh", "Josh Nowak", "J. Nowak", "J Nowak"]  # trauma 2026-04-20: block was inverted — was banning "Joshua"
+    zeststream: "ZestStream"
+    never_zeststream: ["Zeststream", "Zest Stream", "ZS", "zeststream"]
+    the_gap: "The Gap"
+    never_the_gap: ["the gap", "THE GAP"]  # except logo lockup
+
+# ============================================================================
+# RUBRIC — the 15-dim composite (resolves §B rubric conflict)
+# Canonical: 15-dim composite hybrid scorer.
+# The 8-criterion Yuzu-aware rubric from brand-voice-rubric-v2.md runs as a
+# sub-check inside the `brand_voice` dim. See ALGORITHM.md §dim-brand_voice.
+# ============================================================================
+rubric:
+  version: 3
+  kind: composite_15_dim
+  thresholds:
+    banned_word_present: block
+    composite_below_85: block
+    composite_85_to_94: regen
+    composite_ge_95: ship
+    any_dim_below_9: block  # even a 96 composite blocks if a single dim <9
+  weights:
+    regex_pass: 0.15
+    rules_pass: 0.20
+    embedding_pass: 0.25
+    llm_rubric_pass: 0.40
+  dimensions:
+    # The 5 Yuzu gates (≥95 each is the Josh-standard "no 90+ BS")
+    - {id: testable, description: "Claims are verifiable; no untestable assertion"}
+    - {id: secure, description: "No leaked secrets, no unsafe redirects, no bypassable guards in copy"}
+    - {id: fun, description: "Reads well; rhythm; concrete verbs; zero slog"}
+    - {id: valuable, description: "Every paragraph teaches or states a capability"}
+    - {id: easy, description: "Plain-language; jargon always paired with analogy"}
+    # The 10 voice-specific dims
+    - {id: brand_voice, description: "Runs Rubric-B 8-criterion Yuzu-aware sub-check (mission-aligned, partnership-framed, attributed, operator-language, honest-tier, demo-proof, soft-CTA, Yuzu-mapped)"}
+    - {id: canon_present, description: "Canon line present on top-level route; absent OK on internal pages"}
+    - {id: person_named, description: "Joshua Nowak named explicitly (not 'Josh', not 'the team', not 'we')"}
+    - {id: receipt_shown, description: "Concrete receipt appears (number, repo, SHA, workflow count)"}
+    - {id: invite_not_pitch, description: "CTA is an invitation, not a sales pitch"}
+    - {id: yuzu_phase_mapped, description: "Conversion pages explicitly name Peel/Press/Pour"}
+    - {id: plain_language, description: "No bureaucratic or hedging phrasing"}
+    - {id: specificity, description: "Passes the swap test (can't swap competitor name)"}
+    - {id: rhythm, description: "Sentence-length variation; no three-part rhythmic lists"}
+    - {id: friction_calibrated, description: "Tone matches surface × audience × phase per TONE_MATRIX.md"}
+
+# ============================================================================
+# EXEMPLAR / TRAUMA POLICY
+# ============================================================================
+exemplars:
+  storage: "exemplars/<surface>/<slug>.md"
+  promote_threshold: 98
+  aging_hours: 48
+  quarantine_threshold_on_reaudit: 90
+  rag_collection: "brand_voice_exemplars_zeststream"
+  qdrant_port: 6433
+  qdrant_volume: "qdrant_ks_data"
+  embedder: "nomic-embed-text"  # via Ollama local
+  embed_dim: 768
+  dedup_cosine_threshold: 0.92
+
+trauma:
+  storage: "trauma.jsonl"
+  append_only: true
+  schema:
+    fields: [ts, text, surface, composite, banned_words, dims, regen_hints, fix_applied, recurrence_count]
+  promote_to_rule_at_recurrence: 3
+
+# ============================================================================
+# LOGGING
+# ============================================================================
+logging:
+  scorecard_jsonl: ".planning/scorecard-log.jsonl"  # relative to repo root
+  schema:
+    fields: [ts, route, surface, audience, phase, composite, dims, banned_words, claims_ungrounded, source, tick]
+
+# ============================================================================
+# INTEGRATION POINTS
+# ============================================================================
+integration:
+  scorer_api: "http://localhost:7731/score"  # planned
+  pre_commit_hook: ".ops/voice-lint.sh"  # planned
+  prod_probe: ".ops/voice-reach-check.sh"  # planned, sibling to prod-reach-check.sh
+  ecosystem_stocks: ".ecosystem/cron_stocks.json"
+  drift_window_key: "voice_drift_ticks_window"
+  drift_block_threshold: 3  # ≥3/10 ticks → write .ecosystem/STOP
+
+# ============================================================================
+# NEVER / ALWAYS — one-line invariants
+# ============================================================================
+invariants:
+  never:
+    - "Claim frontier-model novelty"
+    - "Claim beginner status"
+    - "Promise a hours-saved or revenue-lift number I can't measure in the client's stack"
+    - "Quote Josh-standard '95+ on EVERYTHING' out of deliverable-gate context"
+    - "Use 'Pour' as a verb ('Pour the handoff' etc.)"
+    - "Use em-dash as dramatic pause in body copy"
+    - "Three-part rhythmic list ('efficient, scalable, and reliable')"
+    - "Decorative citrus metaphor without Yuzu grounding"
+    - "Enemy framing of competitors or consultants"
+    - "Doomer/apocalyptic framing about AI"
+  always:
+    - "Cite every number"
+    - "Name Josh on conversion pages"
+    - "Render Peel. Press. Pour.™ with periods and ™"
+    - "Render The Yuzu Method ® on first use per asset"
+    - "Append to scorecard-log.jsonl on every ship"
+
+# ============================================================================
+# ORIGIN — load-bearing narrative anchor (added 2026-04-19 from interview)
+# Use on /about, /methods, hero copy. Never paraphrase the trigger sequence.
+# ============================================================================
+origin:
+  zirkel_sale_closed: "July 2024"
+  texas_acquisition: "September 2024 (buyer acquired the Texas ISP)"
+  texas_merger_work: "January–May 2025 (onsite merger; staff cuts; protocol unification)"
+  trigger_moment: "June 2025"
+  trigger_event: "30-day notice at ElektraFi. Pivoted to AI/innovation role for remaining months."
+  first_git_commit: "June 2025"
+  llc_formed: "September 2025 (Colorado, originally coined 'brainzest')"
+  full_time_start: "December 31, 2025 (last day at ElektraFi)"
+  december_confirmation: "Christmas party 2025 — confirmed President of Ops offer was a puppet seat (CEO + Director of Engineering making decisions without him)"
+  narrative_anchor: "Parallel build, not flight. ZestStream existed as intent by September 2025. The December party confirmed what June already decided."
+  first_person_rule: "'I built' is an accuracy choice, not a style choice. The mergers didn't create the pronoun — they revealed it. Joshua was the one who saw the whole system, all the way back to ZIRKEL."
+
+# ============================================================================
+# ICP QUALIFIERS — who to work with, who to route away
+# Derived from 2026-04-19 interview. Every /consult page copy must reflect these.
+# ============================================================================
+icp_qualifiers:
+  lean_forward_signals:
+    - id: tools_failed_to_stick
+      signal: "'I've tried three tools and none of them stuck'"
+      why: "Understands the problem is process, not tooling. Has earned the insight."
+    - id: decision_maker_present
+      signal: "Named decision-maker in the conversation"
+      why: "Participation requires authority. No authority, no participation."
+  lean_back_signals:
+    - id: we_without_owner
+      signal: "'We' used without naming the actual decision-maker"
+      why: "Shopping for a vendor, not a partner. Usually dies in week 2."
+    - id: install_the_tool
+      signal: "'I just need someone to install [ChatGPT/n8n/whatever] for my team'"
+      why: "Below substance threshold. Can do it at rate if they pay, but not the work."
+    - id: spreadsheet_only
+      signal: "Engagement reduces to spreadsheet work"
+      why: "Capable with spreadsheets, but it's not a big enough challenge. Not the work Joshua does."
+    - id: below_price_floor
+      signal: "Budget under $3k or unwilling to commit $100-$175/hr"
+      why: "Hasn't been burned enough to respect the process."
+  non_negotiables:
+    - id: participation
+      rule: "Joshua can't build in isolation. Daily ops rewrite requires client engagement."
+    - id: velocity
+      rule: "Joshua moves fast. Waiting on responses kills momentum and the engagement."
+    - id: value_recognition
+      rule: "Client must have already concluded cheap shortcuts cost more than the fix."
+  hidden_qualifier: "We work with people who've already been burned enough to respect the process. The $3-$5k floor isn't really about money — it's whether they've had the lesson yet."
+
+# ============================================================================
+# PRICING — machine-checkable floors
+# Any copy implying sub-floor engagement is auto-rejected.
+# ============================================================================
+pricing:
+  hourly_floor_usd: "100-175"
+  engagement_minimum_usd: 3000
+  engagement_target_usd: 5000
+  below_floor_policy: "Route to DIY solutions or self-serve. Never dilute the Peel to fit smaller budgets."
+
+# ============================================================================
+# SUBSTANCE THESIS — what Joshua actually sells (the answer to 'what do you do')
+# ============================================================================
+substance_thesis:
+  what_joshua_sells:
+    one_line: "20 years of operator experience + a multi-agent AI ecosystem + an unwillingness to quit on hard problems."
+    velocity_claim: "What used to take a developer and weeks of back-and-forth, I research, build, and scrap in a morning — for something better."
+    positioning: "The person who lives in the gap between 'this cool new thing exists' and 'my business now makes more money because of it.'"
+  what_joshua_does_NOT_sell:
+    - "A slide deck"
+    - "Installation of a single tool"
+    - "Isolated work that doesn't require the client to show up"
+    - "Spreadsheet-only engagements (capable, but not the work)"
+    - "Generic advice without implementation"
+
+# ============================================================================
+# FLYWHEEL — compound operator capital (the accretion thesis)
+# This is the answer to 'why is this different from consulting?'
+# ============================================================================
+flywheel:
+  name: "compound_operator_capital"
+  thesis: "Every engagement makes the next engagement cheaper and faster to deliver, without becoming generic for the client."
+  mechanism: "Each build produces reusable patterns (skills, templates, ground-truth). Patterns age into exemplars. Exemplars inform the next build."
+  provenance_chain:
+    - step: 1
+      period: "2020–Jul 2024"
+      event: "ZIRKEL build-up — $225k counter-offer to stay, 18-month operational cleanup, five companies unified, sale closed July 2024"
+    - step: 2
+      period: "Sep 2024–May 2025"
+      event: "Texas acquisition closed Sep 2024; onsite merger Jan–May 2025 — staff cuts, unified operational protocols, promoted to Director of Ops Jan 2025"
+    - step: 3
+      period: "Jun 2025"
+      event: "30-day notice at ElektraFi. Pivoted to AI/innovation role for remaining months; ZestStream thesis forms"
+    - step: 4
+      period: "Jul 17, 2025"
+      event: "Operations repo created (GitHub JYeswak/) — first code post-notice, ElektraFi PLpgSQL ops surface, 30,000+ hardware-piece migration receipt"
+    - step: 5
+      period: "Jul 31, 2025"
+      event: "multi-agent repo created — Joshua's first ZestStream-thesis git commit; first post-notice ZestStream-thesis code"
+    - step: 6
+      period: "Aug 10, 2025"
+      event: "EFI chatbot (ISP customer-support AI) — matches interview Round 5 claim 'ISP AI Jun–Oct 2025'"
+    - step: 7
+      period: "Aug 30, 2025"
+      event: "ClutterFreeSpaces onboarded — newsletter automation; client relationship starts 5+ months before April 2026 expo launch"
+    - step: 8
+      period: "Sep 2025"
+      event: "ZestStream v1 site shipped + Colorado LLC formed (originally coined 'brainzest')"
+    - step: 9
+      period: "Dec 17, 2025"
+      event: "ZestStream v2 marketing site started (continues to zeststream-v2-fresh, 3,210 Joshua commits)"
+    - step: 10
+      period: "Dec 31, 2025"
+      event: "Last day at ElektraFi. ZestStream full-time. Christmas party 2025 confirmed the CEO/Director of Engineering were making decisions without him — the June decision was right"
+    - step: 11
+      period: "Jan 2026"
+      event: "15+ repo burst: thesis validation burst — opencode-grok-first-router, swarm-daemon, 100minds family, ISP-Acquisition-AI, claims/eo-insurance-catalog, email-assistant, video-audio-mcp, and more"
+    - step: 12
+      period: "Feb 2026"
+      event: "CubCloud platform infrastructure stood up (Gitea at 10.10.20.10). IP boundary event. alps-insurance, terratitle, blackfoot, cubcloud-bears, cubden-backend, openfang deployment all begin"
+    - step: 13
+      period: "Mar–Apr 2026"
+      event: "Client portfolio active: alps-insurance, blackfoot, terratitle, CFS-expo, openfang (4.63B tokens/day deployed), polymarket-pico-z (3,414 commits). Remy (fka cubcloud-aaas) migrating to JYeswak/remy"
+  positioning_claim: "Not consulting. Not implementation. Compound operator capital."
+  yuzu_alignment: "Yuzu is a Japanese citrus that takes 18 years to bear fruit; the zest is the most valuable part. 20 years of operator work is the tree. The ecosystem is the zest."
+
+# =============================================================================
+# VISUAL IDENTITY — Yuzu Mascot System
+# Added session 15 (2026-04-20). Full character bible at visual/character-bible.md
+# =============================================================================
+visual_identity:
+  status: "CANONICAL (locked 2026-04-20)"
+  mascot:
+    name: "Yuzu"
+    archetype: "anthropomorphic yuzu citrus fruit — ZestStream operator mascot"
+    canonical_reference: "visual/yuzu_canonical.jpg"
+    character_bible: "visual/character-bible.md"
+    required_traits:
+      leaves_on_head: 1  # EXACTLY one, never two or three
+      eye_color: "emerald-green with small white highlights"
+      expression_canon: "Operator Yuzu — quiet competent smile, slightly weathered"
+      clothing:
+        shirt: "cream henley, sleeves rolled to elbows"
+        apron: "canvas natural tone with tool pockets"
+      signature_accessory: "wood-handled clipboard with visible receipts/score pages"
+      head_proportion: 0.4  # head is ~40% of full figure
+    banned_variants:
+      - "big chibi open smile with visible teeth"
+      - "blushing pink cheeks"
+      - "wide anime sparkle-eyes"
+      - "stern or angry expression"
+      - "eyes closed / winking"
+      - "ink-black eyes (must be emerald-green)"
+      - "more than one leaf"
+      - "corporate blue / saas gradient / cyberpunk neon palette"
+      - "Jeff's blue-robot colors"
+
+  style:
+    rendering: "3D Pixar/DreamWorks CG illustration"
+    lighting: "warm — golden hour, midday workshop, or dawn. Never cyberpunk neon."
+    effects: ["subsurface scattering on yuzu peel", "shallow depth of field", "soft global illumination", "warm rim light"]
+    never: ["flat vector", "photographic", "painterly", "pixel art", "neon saturated", "corporate gradient"]
+
+  palette:
+    primary_peel: "#CEE741"    # yuzu yellow-green
+    leaf_stem: "#6B8E23"       # sage deep green
+    clothing: "#F5F0E1"        # cream / canvas natural
+    text_structural: "#1A1B1F" # deep ink black (slightly warm)
+    warm_accent: "#E8A94B"     # amber / golden hour
+    env_plants: "#5B7553"      # forest sage
+    never:
+      - "corporate-saas-blue (#4169E1 range)"
+      - "pure magenta"
+      - "cyberpunk cyan"
+      - "neon purple gradient"
+
+  typography:
+    # Ground-truth from zeststream-v2-fresh/src/app/layout.tsx lines 2, 21-33
+    # Canonical production font pair. Never substitute without updating both repos.
+    display:
+      family: "Geist"
+      source: "next/font/google"
+      css_var: "--font-geist-sans"
+      weights: [400, 500, 600, 700]
+      tracking_display: -0.02em  # tight for hero text, loosen for body
+      use_for: ["hero headlines", "section titles", "marketing copy", "image text overlays"]
+    body:
+      family: "Geist"
+      css_var: "--font-geist-sans"
+      weights: [400, 500]
+      tracking_body: 0
+      use_for: ["paragraph text", "UI labels", "form copy"]
+    mono:
+      family: "Geist Mono"
+      source: "next/font/google"
+      css_var: "--font-geist-mono"
+      weights: [400, 500]
+      use_for: ["code blocks", "receipts and scorecards (brand 'receipt-shown' motif)", "terminal output in screenshots"]
+    loading:
+      display: "swap"  # show fallback immediately, swap on load
+      subsets: ["latin"]
+      preload: true
+    fallbacks:
+      sans: "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif"
+      mono: "ui-monospace, 'SF Mono', 'Menlo', 'Consolas', monospace"
+    # Text-overlay rules for Yuzu mascot images (Midjourney/Grok Imagine cannot
+    # render text reliably — overlay post-generation via Figma/canvas API)
+    image_text_overlay:
+      always_post_generation: true  # never ask the generator to bake text in
+      headline_max_chars: 60
+      contrast_ratio_min: 4.5  # WCAG AA on any tile over the image
+      position_preference: ["bottom-left-quarter", "upper-third-centered"]
+      banned:
+        - "Comic Sans, Papyrus, Impact (any decorative or joke fonts)"
+        - "Any font not in the Geist family"
+        - "All-caps over >4 words (fatiguing)"
+        - "Script or handwriting overlays"
+      yuzu_method_trademark_overlay:
+        first_use_text: "The Yuzu Method ®"
+        motto_overlay: "Peel. Press. Pour.™"
+        rendering_rule: "always render the registered-symbol ® on first appearance, ™ after 'Pour'"
+
+  scene_pattern:
+    rule: "Yuzu always does the thing the repo/tool does. Work IS the image."
+    phase_encoding:
+      peel:
+        description: "Discovery, research, audit. Early morning / dawn light."
+        settings: ["greenhouse", "kitchen workbench", "forest edge"]
+        activities: ["peeling fruit", "inspecting with magnifier", "reading scroll", "examining receipts"]
+        reference: "visual/scenes/peel_phase_discovery.jpg"
+      press:
+        description: "Build, construct, transform. Midday workshop light."
+        settings: ["workshop", "lab", "workbench with tool pegboard"]
+        activities: ["operating press/tool", "assembling", "stamping receipts"]
+        reference: "visual/scenes/press_phase_workbench.jpg"
+      pour:
+        description: "Deliver, ship, complete. Golden hour light."
+        settings: ["finish table", "barn doorway", "counter"]
+        activities: ["pouring yuzu-green liquid", "stamping SHIPPED", "presenting receipt"]
+        reference: "visual/scenes/pour_phase_delivery.jpg"
+
+  surface_outputs:
+    repo_hero:
+      aspect: "16:9"
+      dimensions: "1200x630 minimum"
+      filename_pattern: "yuzu_[repo-slug]_hero.jpg"
+      location: "repo root"
+      uses: ["README hero image", "GitHub social preview card (OG image)"]
+    repo_avatar:
+      aspect: "1:1"
+      dimensions: "460x460"
+      filename_pattern: "yuzu_[repo-slug]_avatar.jpg"
+      location: "repo root"
+      uses: ["GitHub repo avatar"]
+    explainer_banner:
+      aspect: "16:9"
+      dimensions: "1920x1080"
+      reference: "visual/scenes/yuzu_method_explainer.jpg"
+      uses: ["/consult page hero", "about page", "voice-coach skill README"]
+
+  generation_workflow:
+    primary_tool: "Grok Imagine (session 15 validated)"
+    secondary_tools: ["Midjourney with --cref", "Leonardo.ai Character Reference", "Flux + IP-Adapter"]
+    prompt_template: |
+      Operator Yuzu character — yuzu citrus fruit head with ONE green leaf,
+      emerald-green eyes with quiet competent smile, cream henley with rolled
+      sleeves under canvas apron, wood-handled clipboard. Scene: [REPO-SPECIFIC].
+      In the scene: [TOOL-OUTPUTS as floating 3D objects or monitors].
+      3D Pixar-quality CG, subsurface scattering on the peel,
+      [PEEL dawn | PRESS midday | POUR golden hour] lighting.
+      Palette: yuzu yellow-green #CEE741, cream, warm amber, sage green,
+      deep ink black. 16:9 aspect ratio.
+    midjourney_flags: "--ar 16:9 --stylize 200 --v 6 --style raw --cref [canonical_url] --cw 100"
+
+  validation_checklist:
+    # Apply as STEP 0 before grading any visual artifact
+    - "ONE leaf on head (not two or three)"
+    - "Emerald-green eyes (not black, not blue)"
+    - "Canvas apron + cream henley + rolled sleeves"
+    - "Operator expression (not chibi-cheerful, not stern)"
+    - "Palette compliance (no corp blue, no neon)"
+    - "3D Pixar rendering (not flat/photo/painterly)"
+    - "Wood-handled clipboard visible or in scene context"
+    - "Warm lighting (never cyberpunk)"
+
+  session_15_asset_bank:
+    # Shippable assets generated this session, already canonical
+    canonical_reference: "visual/yuzu_canonical.jpg"
+    github_profile_avatar: "visual/yuzu_avatar_square.jpg"
+    scenes:
+      - use: "zeststream-brand-voice repo hero (Sat 4/26 launch image)"
+        file: "visual/scenes/zeststream_brand_voice_hero.jpg"
+      - use: "PEEL phase template / discovery repos"
+        file: "visual/scenes/peel_phase_discovery.jpg"
+      - use: "PRESS phase template / build-tooling repos"
+        file: "visual/scenes/press_phase_workbench.jpg"
+      - use: "POUR phase template / launch-delivery repos"
+        file: "visual/scenes/pour_phase_delivery.jpg"
+      - use: "Yuzu Method explainer banner / /consult / about pages"
+        file: "visual/scenes/yuzu_method_explainer.jpg"

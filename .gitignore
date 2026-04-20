@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python (for future scorer)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node (for future Qdrant adapter)
+node_modules/
+
+# Local settings — never commit brand-specific secrets
+skills/brand-voice/brands/*/settings.local.md
+skills/brand-voice/brands/*/.env
+!skills/brand-voice/brands/*/settings.local.md.example
+
+# Per-brand private scratch (raw scrapes, interviews)
+skills/brand-voice/brands/*/_raw/
+skills/brand-voice/brands/*/_interview/
+
+# Scorecard and trauma logs (brand-specific, may contain pre-rewrite drafts)
+skills/brand-voice/brands/*/trauma.jsonl
+skills/brand-voice/brands/*/scorecard-log.jsonl
+skills/brand-voice/brands/*/calibration.md
+
+# Quarantined exemplars (deleted after review)
+skills/brand-voice/brands/*/exemplars/_quarantined/
+
+# Private open-questions (brand-specific — example brands may keep it public)
+skills/brand-voice/brands/zeststream/OPEN_QUESTIONS.md

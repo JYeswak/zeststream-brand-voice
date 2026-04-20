@@ -1,0 +1,368 @@
+# Acme SaaS — fictional brand voice config
+# Exists so you can read a clean reference without decoding Josh's zeststream positioning.
+# Adapt this, not zeststream, when you're forking for a real client.
+
+brand:
+  slug: acme-saas
+  name: Acme
+  operator: null  # B2B SaaS; no single named operator
+  domain: "acme.example.com"
+  source_of_truth: "docs/brand-brief.md"
+  ground_truth: "../../data/capabilities-ground-truth.yaml"
+
+# ============================================================================
+# CANON — the one sentence
+# ============================================================================
+canon:
+  primary: "Acme turns invoice chaos into a 15-minute Monday morning."
+  variants_approved:
+    - "We help finance teams close the month by Friday, not the next Friday."
+  rule: "Primary canon appears verbatim at least once per top-level route."
+
+method: {}  # Acme doesn't have a named method; omit the block
+
+# ============================================================================
+# IDENTITY POSTURE
+# ============================================================================
+posture:
+  voice: "first-person plural"
+  pronouns_allowed: ["we", "our", "you", "your"]
+  pronouns_banned: ["I"]  # B2B SaaS; single-person voice feels wrong
+  attribution_rule: "Cite research sources when referenced. Never attribute competitors by name in hero copy."
+
+three_moves:
+  mandatory_on_conversion_surfaces: true
+  moves:
+    - id: name_concrete_customer_outcome
+      rule: "Name a before/after in customer terms (e.g. 'close by Friday' not 'streamline close')"
+    - id: show_receipt
+      rule: "Show a customer logo, a metric, or a G2 review excerpt"
+    - id: invite_to_trial
+      rule: "14-day trial, no credit card. Never 'contact sales' on first touch."
+
+# ============================================================================
+# BANNED WORDS — consolidated list
+# ============================================================================
+banned_words:
+  # Universal consultant-tells (keep; they apply to almost every brand)
+  - enterprise
+  - transformation
+  - orchestration
+  - synergy
+  - synergize
+  - holistic
+  - turnkey
+  - paradigm
+  - stakeholder
+  - deliverable
+  - "circle back"
+  - "touch base"
+  - operationalize
+  # AI/marketing slop
+  - "harness the power"
+  - revolutionize
+  - "game-changing"
+  - seamless
+  - "cutting-edge"
+  - "best-in-class"
+  - "mission-critical"
+  - "move the needle"
+  - "boil the ocean"
+  # Acme-specific — over-used competitor words
+  - "unified platform"
+  - "all-in-one solution"
+  - "single pane of glass"
+
+banned_phrases:
+  - "In today's fast-paced business environment"
+  - "Now more than ever"
+  - "empower your team" # verb form
+  - "unlock your potential"
+
+# ============================================================================
+# CLAIMS RULES
+# ============================================================================
+claims:
+  mode: "cite_or_omit"
+  ungrounded_auto_reject: true
+  vague_quantifier_auto_reject: true
+  testimonial_without_name: reject
+  capability_without_receipt: reject
+  ground_truth_source: "../../data/capabilities-ground-truth.yaml"
+  extraction:
+    patterns:
+      - '\b\d[\d,]*\s*(?:customers?|invoices?|hours?|days?|minutes?)\b'
+      - '\$[\d,]+(?:k|K|M)?(?:/mo|/month|/yr)?'
+      - '\b\d+(?:\.\d+)?%'
+      - '\b\d+×|\b\d+x (?:faster|better)'
+
+# ============================================================================
+# SURFACE RULES
+# ============================================================================
+surfaces:
+  hero:
+    sentence_max_words: 18
+    paragraphs_max: 1
+    register: "direct, outcome-focused, inviting"
+    must_have: [canon_line_if_top_route, outcome_named]
+  body:
+    sentence_max_words: 22
+    paragraph_max_sentences: 3
+    register: "clear, specific, customer-outcome-first"
+  cta:
+    sentence_max_words: 10
+    register: "action-verb led, low-friction trial"
+    max_per_page: 2
+  email:
+    sentence_max_words: 20
+    signoff: "— The Acme team"
+    register: "helpful, brief, one ask per email"
+  post:
+    sentence_max_words: 25
+    register: "practitioner-to-practitioner, specific use cases"
+    must_name_receipt: true
+  meta:
+    sentence_max_words: 20
+    character_max: 160
+    register: "outcome + proof, no adjectives"
+
+audiences:
+  operator: {register_adjust: "+specificity on the workflow, +numbers"}
+  candidate: {register_adjust: "+mission framing, +team snapshots"}
+  customer: {register_adjust: "+outcome-forward, +trial invite"}
+  general: {register_adjust: "default — outcome-focused"}
+
+word_caps_per_route:
+  "/": 500
+  "/pricing": 400
+  "/features": 800
+  "/about": 700
+  "/customers/*": 1200
+  default: 700
+
+# ============================================================================
+# TRADEMARK RENDERING
+# ============================================================================
+trademarks:
+  brand_names:
+    acme: "Acme"
+    never_acme: ["ACME", "acme", "Acme, Inc."]
+
+# ============================================================================
+# SITUATION PLAYBOOKS (v0.2)
+# ============================================================================
+situation_playbooks:
+  customer_service:
+    rules:
+      - "Reply from a named engineer or support lead, not 'the team'"
+      - "Name the specific feature or bug the customer described"
+      - "Link to changelog/release notes if a fix shipped"
+      - "Never 'unfortunately' — state the workaround or ETA"
+  competitor_mention:
+    rules:
+      - "On /vs/<competitor> pages only"
+      - "Lead with customer outcome, never 'we're better because'"
+      - "Name specific features, not vague 'robustness'"
+    naming_policy: "name only on /vs/X pages; never in hero"
+  product_promo:
+    rules:
+      - "Open with customer-side outcome, not our feature"
+      - "Name a specific customer type (mid-market SaaS finance lead)"
+      - "Trial invite as the CTA, not demo request"
+  community_engagement:
+    rules:
+      - "Amplify customer wins on changelog"
+      - "Public roadmap upvotes matter; mention winning items by name"
+      - "Founders reply personally on feedback threads"
+  crisis_response:
+    rules:
+      - "Status page FIRST, post within 15 min of detection"
+      - "Name what broke, what's affected, what we're doing"
+      - "Post-mortem within 5 business days — public, signed by eng lead"
+
+# ============================================================================
+# VOICE EXAMPLES BY CONTEXT (v0.2)
+# ============================================================================
+voice_examples_by_context:
+  greeting:
+    on_brand:
+      - "Hey — welcome to Acme."
+      - "Thanks for signing up. Here's what to do first."
+      - "Glad you're here. Let's get you closing the month by Friday."
+    off_brand:
+      - "Greetings, valued user!"
+      - "Thank you for choosing Acme."
+      - "Hello! We're excited to have you."
+  problem_acknowledgment:
+    on_brand:
+      - "That's a known edge case. Fix shipped 2026-04-15."
+      - "We've seen this with 3 customers. Here's the fastest workaround."
+      - "This is on us. Here's what we're doing."
+    off_brand:
+      - "We sincerely apologize for the inconvenience."
+      - "Unfortunately, this has been a challenge."
+      - "We understand this is frustrating."
+  call_to_action:
+    on_brand:
+      - "Start a 14-day trial. No credit card."
+      - "Close this month with Acme. Free until you file."
+      - "Connect your GL, see the close projection in 3 minutes."
+    off_brand:
+      - "Request a demo to learn more."
+      - "Schedule a consultation with our team."
+      - "Contact sales to discuss your needs."
+  product_mention:
+    on_brand:
+      - "Acme closes the month in 15 minutes (was 3 days for Stripe)."
+      - "Auto-reconciles 95% of invoices on the first sync (N=400 customers)."
+      - "Close workflow runs on top of your existing GL — no data migration."
+    off_brand:
+      - "Our unified platform transforms finance operations."
+      - "Cutting-edge AI-powered automation."
+      - "Best-in-class financial close experience."
+  competitor_reference:
+    on_brand:
+      - "Unlike procurement tools, we integrate with your GL, not around it."
+      - "FP&A tools forecast; Acme closes. We integrate with Pigment and Mosaic."
+      - "Acme is opinionated about one thing: close-month. Everything else belongs in its own tool."
+    off_brand:
+      - "Our competitors fail because…"
+      - "Other platforms can't match our…"
+      - "Unlike [Competitor], we…"
+
+# ============================================================================
+# BOUNDARIES (v0.2)
+# ============================================================================
+boundaries:
+  tone:
+    - "confident not arrogant — we do one thing well, not everything"
+    - "honest not humble — we close faster than alternatives; we'll show the numbers"
+    - "technical-accessible not buzzword-heavy"
+  scope:
+    - "close-month only — not FP&A, not procurement, not GL replacement"
+    - "mid-market (50–500 employees) — not SMB, not enterprise"
+    - "SaaS / services / subscription — not manufacturing, healthcare, or government"
+  pricing:
+    - "all three tiers visible on /pricing"
+    - "no 'contact us for pricing' as first gate"
+    - "enterprise SSO/SSO/audit features billed separately, stated upfront"
+  community:
+    - "public roadmap; customers upvote; eng leads post updates by name"
+    - "status page < 15 min; post-mortems < 5 business days"
+
+# ============================================================================
+# RHYTHM / CORPUS SIGNATURES (v0.2 — example values; replace via corpus run)
+# ============================================================================
+rhythm:
+  sentence_length:
+    mean_target: 13       # mid-market B2B SaaS benchmark: short, outcome-first
+    mean_tolerance: 4
+    stdev_target: 6
+    stdev_min: 4
+  burstiness:
+    target: 0.48
+    min: 0.30
+    max: 0.75
+  paragraph_length:
+    sentences_per_para_max: 3
+    sentences_per_para_target: 2
+  starter_variation:
+    top_3_starters_max_share: 0.25
+
+corpus_signature:
+  analyzed_at: "TBD — run scripts/analyze_corpus.py on acme.example.com"
+  source: ""
+  sentence_count: 0
+  mean_sentence_length: 0.0
+  stdev_sentence_length: 0.0
+  burstiness: 0.0
+  top_starters: []
+  top_enders: []
+  complexity_distribution:
+    simple: 0.0
+    compound: 0.0
+    complex: 0.0
+  zero_tolerance_patterns:
+    - {pattern: "delve into", alternative: "look at", reason: "GPT-4 signature"}
+    - {pattern: "leverage", alternative: "use", reason: "consultant-slop"}
+    - {pattern: "in today's fast-paced world", alternative: "[delete]", reason: "opener-slop"}
+    - {pattern: "it's important to note that", alternative: "[delete]", reason: "LLM throat-clearing"}
+    - {pattern: "unified platform", alternative: "close-month tool", reason: "B2B SaaS cliché; our scope is narrow"}
+    - {pattern: "all-in-one solution", alternative: "[name the specific thing]", reason: "cliché"}
+    - {pattern: "cutting-edge", alternative: "[name the technology]", reason: "empty intensifier"}
+    - {pattern: "robust", alternative: "[describe what it does]", reason: "empty adjective"}
+    - {pattern: "seamless", alternative: "[name the friction removed]", reason: "marketing-slop"}
+    - {pattern: "ensure", alternative: "[active verb]", reason: "passive-corporate"}
+
+# ============================================================================
+# RUBRIC (v0.2 — 16-dim, adds rhythm_variance)
+# ============================================================================
+rubric:
+  version: 2
+  kind: composite_16_dim
+  thresholds:
+    banned_word_present: block
+    composite_below_85: block
+    composite_85_to_94: regen
+    composite_ge_95: ship
+    any_dim_below_9: block
+  weights:
+    regex_pass: 0.15
+    rules_pass: 0.20
+    embedding_pass: 0.25
+    llm_rubric_pass: 0.40
+  dimensions:
+    # 5 Yuzu-style gates (general-purpose; not tied to Yuzu method)
+    - {id: testable, description: "Claims are verifiable; no untestable assertion"}
+    - {id: secure, description: "No accidental disclosure of customer data, pricing exceptions, or internal terms"}
+    - {id: fun, description: "Reads well; rhythm; concrete verbs"}
+    - {id: valuable, description: "Every paragraph states an outcome or a capability"}
+    - {id: easy, description: "Plain-language; jargon defined inline when unavoidable"}
+    # 10 voice dims (note: yuzu_phase_mapped dropped because Acme doesn't use Yuzu)
+    - {id: brand_voice, description: "Passes outcome-first, named-receipt, trial-invite sub-checks"}
+    - {id: canon_present, description: "Canon line present on top-level route"}
+    - {id: outcome_named, description: "A specific customer-side outcome is named (not 'boost productivity')"}
+    - {id: receipt_shown, description: "Customer logo, metric, or review excerpt appears"}
+    - {id: invite_not_pitch, description: "CTA is trial invitation, not sales conversation"}
+    - {id: plain_language, description: "No bureaucratic or hedging phrasing"}
+    - {id: specificity, description: "Passes the swap test (can't replace 'Acme' with a competitor and work)"}
+    - {id: rhythm, description: "Sentence-length variation; no three-part rhythmic lists"}
+    - {id: friction_calibrated, description: "Tone matches surface × audience per TONE_MATRIX.md"}
+    - {id: scope_disciplined, description: "Doesn't claim to solve every finance problem; stays in core scope"}
+    - {id: rhythm_variance, description: "Sentence-length burstiness in target band per rhythm block (AI-slop detection) — see references/CORPUS_SIGNATURES.md"}
+
+# ============================================================================
+# EXEMPLAR / TRAUMA POLICY (same defaults as zeststream)
+# ============================================================================
+exemplars:
+  storage: "exemplars/<surface>/<slug>.md"
+  promote_threshold: 98
+  aging_hours: 48
+  quarantine_threshold_on_reaudit: 90
+  rag_collection: "brand_voice_exemplars_acme_saas"
+  qdrant_port: 6433
+  embedder: "nomic-embed-text"
+  embed_dim: 768
+  dedup_cosine_threshold: 0.92
+
+trauma:
+  storage: "trauma.jsonl"
+  append_only: true
+  promote_to_rule_at_recurrence: 3
+
+logging:
+  scorecard_jsonl: ".voice/scorecard-log.jsonl"
+
+# ============================================================================
+# NEVER / ALWAYS
+# ============================================================================
+invariants:
+  never:
+    - "Claim to solve all finance problems"
+    - "Promise outcome numbers we can't measure in customer's stack"
+    - "Use 'unified platform' — it means nothing"
+    - "Attack competitors by name in hero"
+  always:
+    - "Name a specific outcome in customer terms"
+    - "Show one receipt per page (logo, metric, or quote)"
+    - "Invite to trial, not to sales"

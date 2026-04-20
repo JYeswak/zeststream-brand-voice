@@ -1,0 +1,1358 @@
+# capabilities-ground-truth.yaml
+# The claim bank. Every factual claim in zeststream.ai copy must match an entry here.
+# This file is THE 2026-04-19 pivot's permanent fix — S.CAPABILITIES stock.
+#
+# RULES:
+# 1. Every entry MUST have: id, claim, canonical_phrasing, source.{type,location,timestamp}
+# 2. Append-only for historical accuracy. Deprecate with `deprecated_at` field; never delete.
+# 3. If a claim needs to appear in copy and has no entry here, STOP and add the entry with evidence. No exceptions.
+# 4. stale_after_days triggers a warning on scorer runs; doesn't block. Manual refresh.
+#
+# SOURCE TYPES:
+#   benchmark — direct measurement, reproducible
+#   api_pull — live API query, results attached
+#   repo_link — code/config in a git repo
+#   timestamped_log — log line with timestamp and service
+#   client_authorized — written client approval to cite
+#   vendor_public_pricing — vendor's own public pricing page (retrieved date matters)
+#   commitment — stated past-tense capability with supporting receipt
+
+# ============================================================================
+# WHO JOSH IS
+# ============================================================================
+
+- id: joshua_identity_montana
+  claim: "Solo operator based in Montana"
+  canonical_phrasing: "Solo operator, Montana"
+  category: identity
+  source:
+    type: commitment
+    location: "capabilities-brief.md:10"
+    timestamp: "2026-04-19"
+
+- id: joshua_years_zirkel
+  claim: "12 years at ZIRKEL before the acquisition"
+  canonical_phrasing: "12 years at ZIRKEL"
+  value: 12
+  dates: "2012-2024"
+  category: identity
+  source:
+    type: commitment
+    location: "capabilities-brief.md:10"
+    timestamp: "2026-04-20"
+  context: "ZIRKEL acquisition closed July 2024; joined 2012"
+
+- id: joshua_elektrafi_tenure
+  claim: "Led technical operations at ElektraFi through end of 2025"
+  canonical_phrasing: "led technical operations at ElektraFi through end of 2025"
+  category: identity
+  source:
+    type: commitment
+    location: "capabilities-brief.md:10"
+    timestamp: "2026-04-19"
+
+- id: joshua_zeststream_full_time
+  claim: "Left ElektraFi to run ZestStream full-time"
+  canonical_phrasing: "left to run ZestStream full-time"
+  category: identity
+  source:
+    type: commitment
+    location: "capabilities-brief.md:10"
+    timestamp: "2026-04-19"
+
+- id: joshua_exit_2024
+  claim: "Five companies merged into one, successful exit in 2024"
+  canonical_phrasing: "five companies merged into one, successful exit in 2024"
+  category: identity
+  source:
+    type: commitment
+    location: "language-guidelines.md:11"
+    timestamp: "2026-04-19"
+  stale_after_days: 365
+
+# ============================================================================
+# N8N INFRASTRUCTURE
+# ============================================================================
+
+- id: n8n_workflow_count_2026_04_19
+  claim: "96 production n8n workflows running at n8n.zeststream.ai"
+  canonical_phrasing: "96 production n8n workflows"
+  category: infrastructure
+  unit: workflows
+  value: 96
+  source:
+    type: api_pull
+    location: "n8n.zeststream.ai /api/v1/workflows?limit=250"
+    verified_by: "pulled 2026-04-19"
+    timestamp: "2026-04-19"
+  context: "live count fluctuates ±5; re-verify monthly"
+  stale_after_days: 30
+
+- id: n8n_factory_proven
+  claim: "n8n workflow factory proven end-to-end: intent → generated → validated → deployed"
+  canonical_phrasing: "working n8n factory that turns intent files into deployable workflow JSON"
+  category: infrastructure
+  source:
+    type: repo_link
+    location: "~/Developer/zesttube/src/workflows/"
+    timestamp: "2026-04-16"
+
+# ============================================================================
+# GPU STACK & BENCHMARKS
+# ============================================================================
+
+- id: gpu_stack_config
+  claim: "2× NVIDIA H200 NVL and 4× RTX 6000 Ada"
+  canonical_phrasing: "2× NVIDIA H200 NVL and 4× RTX 6000 Ada"
+  category: infrastructure
+  source:
+    type: commitment
+    location: "capabilities-brief.md:25"
+    timestamp: "2026-04-19"
+
+- id: sglang_tok_per_sec_2026_03_24
+  claim: "105 tok/s generation"
+  canonical_phrasing: "105 tok/s generation"
+  category: infrastructure
+  unit: tok/s
+  value: 105
+  source:
+    type: benchmark
+    location: "gpu-optimization repo, benchmark run 2026-03-24"
+    verified_by: "direct measurement via cc-router"
+    timestamp: "2026-03-24"
+  context: "measured on MiniMax M2.5 FP8 at TP=4 on H200 stack"
+
+- id: sglang_prefill_ms_2026_03_24
+  claim: "670ms prefill on 50K-token prompts"
+  canonical_phrasing: "670ms prefill on 50K-token prompts"
+  category: infrastructure
+  unit: ms
+  value: 670
+  source:
+    type: benchmark
+    location: "gpu-optimization repo, benchmark run 2026-03-24"
+    verified_by: "direct measurement via cc-router"
+    timestamp: "2026-03-24"
+
+- id: proxy_chain_latency
+  claim: "Full proxy chain adds <200ms"
+  canonical_phrasing: "full proxy chain adds <200ms"
+  category: infrastructure
+  source:
+    type: benchmark
+    location: "gpu-optimization repo, benchmark run 2026-03-24"
+    timestamp: "2026-03-24"
+
+# ============================================================================
+# CACHE BREAKTHROUGH
+# ============================================================================
+
+- id: cache_hit_before
+  claim: "Radix cache hit rate 0.007%"
+  canonical_phrasing: "0.007% hit rate"
+  category: infrastructure
+  unit: percent
+  value: 0.007
+  source:
+    type: timestamped_log
+    location: "SGLang logs, pre-fix measurement 2026-03-25"
+    timestamp: "2026-03-25"
+
+- id: cache_hit_after
+  claim: "Radix cache hit rate 6.37% after cch= normalization"
+  canonical_phrasing: "6.37% hit rate"
+  category: infrastructure
+  unit: percent
+  value: 6.37
+  source:
+    type: timestamped_log
+    location: "SGLang logs, post-fix measurement 2026-03-25"
+    timestamp: "2026-03-25"
+
+- id: cache_improvement_multiplier
+  claim: "910× improvement on a 2-line regex"
+  canonical_phrasing: "910× improvement"
+  category: infrastructure
+  unit: multiplier
+  value: 910
+  source:
+    type: benchmark
+    location: "calculated from 6.37% / 0.007%; cc-mirror prompt-trimmer regex commit"
+    timestamp: "2026-03-25"
+  context: "cch= header normalization in prompt-trimmer; 2-line regex change"
+
+# ============================================================================
+# CONTAINER + IAC
+# ============================================================================
+
+- id: container_count
+  claim: "100+ container deployments"
+  canonical_phrasing: "100+ containers"
+  category: infrastructure
+  source:
+    type: commitment
+    location: "capabilities-brief.md:27"
+    timestamp: "2026-04-19"
+
+- id: ansible_reproducibility
+  claim: "Ansible playbooks documented — next rebuild is a `ansible-playbook` command away"
+  canonical_phrasing: "Ansible playbooks"
+  category: infrastructure
+  source:
+    type: commitment
+    location: "capabilities-brief.md:55"
+    timestamp: "2026-04-19"
+
+# ============================================================================
+# HARNESSES
+# ============================================================================
+
+- id: harness_cc_mirror
+  claim: "cc-mirror — multi-account Claude routing with automatic failover"
+  canonical_phrasing: "cc-mirror (multi-account Claude routing with failover)"
+  category: tooling
+  source:
+    type: repo_link
+    location: "Josh's personal repo; cc-mirror is a custom harness"
+    timestamp: "2026-03-25"
+
+- id: harness_cc_router
+  claim: "cc-router — local :3456 entry point routing to Bifrost"
+  canonical_phrasing: "cc-router (:3456 → Bifrost)"
+  category: tooling
+  source:
+    type: repo_link
+    location: "Josh's personal repo"
+    timestamp: "2026-03-25"
+
+- id: harness_cch_trimmer
+  claim: "cch normalizing prompt trimmer — the cache breakthrough regex"
+  canonical_phrasing: "cch-normalizing prompt trimmer"
+  category: tooling
+  source:
+    type: repo_link
+    location: "Josh's personal repo"
+    timestamp: "2026-03-25"
+
+# ============================================================================
+# QDRANT / EMBEDDINGS
+# ============================================================================
+
+- id: qdrant_chunk_count
+  claim: "Qdrant currently indexes ~23,188 chunks across Josh's own codebases"
+  canonical_phrasing: "23,188 chunks indexed"
+  category: infrastructure
+  unit: chunks
+  value: 23188
+  source:
+    type: api_pull
+    location: "Qdrant :6433 collection stats"
+    timestamp: "2026-04-19"
+  stale_after_days: 30
+
+# ============================================================================
+# COMFYUI / MEDIA
+# ============================================================================
+
+- id: comfyui_production_suite
+  claim: "ComfyUI production suite — 27 scripts, 13-step CLIP grading pipeline"
+  canonical_phrasing: "27-script production suite, 13-step CLIP grading pipeline"
+  category: tooling
+  source:
+    type: repo_link
+    location: "~/Developer/comfyui"
+    timestamp: "2026-04-05"
+
+# ============================================================================
+# OBSERVABILITY / STACK
+# ============================================================================
+
+- id: grafana_dashboards
+  claim: "9 Grafana dashboards live"
+  canonical_phrasing: "9 Grafana dashboards"
+  category: infrastructure
+  unit: dashboards
+  value: 9
+  source:
+    type: repo_link
+    location: "cubcloud Grafana at :3500"
+    timestamp: "2026-03-19"
+
+- id: mattermost_openfang_integration
+  claim: "Mattermost integrated + OpenFang agents for automated health checks"
+  canonical_phrasing: "Mattermost + OpenFang"
+  category: infrastructure
+  source:
+    type: commitment
+    location: "capabilities-brief.md:69"
+    timestamp: "2026-04-19"
+
+# ============================================================================
+# COMPLIANCE POSTURE
+# ============================================================================
+
+- id: soc2_hipaa_in_progress
+  claim: "On the path to SOC2 and HIPAA audit-ready (one network upgrade remains)"
+  canonical_phrasing: "on the path to SOC2 and HIPAA audit-ready"
+  category: compliance
+  source:
+    type: commitment
+    location: "capabilities-brief.md:71"
+    timestamp: "2026-04-19"
+  context: "In-progress. Do NOT render as past-tense."
+  must_render_as: "in-progress tense only"
+
+# ============================================================================
+# PRICING — DOORS
+# ============================================================================
+
+- id: door1_pricing
+  claim: "Door 1: Discovery & Map — $5,000 fixed, 1–2 weeks"
+  canonical_phrasing: "$5,000 fixed, 1–2 weeks"
+  category: pricing
+  unit: USD
+  value: 5000
+  source:
+    type: commitment
+    location: "capabilities-brief.md:87"
+    timestamp: "2026-04-19"
+
+- id: door2_pricing
+  claim: "Door 2: Build — from $15,000, milestone-priced, typical $15k-$40k, 3–8 weeks"
+  canonical_phrasing: "from $15,000, milestone-priced"
+  category: pricing
+  source:
+    type: commitment
+    location: "capabilities-brief.md:91"
+    timestamp: "2026-04-19"
+
+- id: door3_pricing
+  claim: "Door 3: Ongoing Partner — $6,000–$12,000/month retainer"
+  canonical_phrasing: "$6,000–$12,000/month retainer"
+  category: pricing
+  source:
+    type: commitment
+    location: "capabilities-brief.md:95"
+    timestamp: "2026-04-19"
+
+- id: concurrency_cap
+  claim: "Max 3 concurrent builds"
+  canonical_phrasing: "Max 3 concurrent builds"
+  category: pricing
+  source:
+    type: commitment
+    location: "capabilities-brief.md:101"
+    timestamp: "2026-04-19"
+
+- id: peel_session_duration
+  claim: "20-minute Peel session, free"
+  canonical_phrasing: "20-minute Peel session"
+  category: pricing
+  source:
+    type: commitment
+    location: "capabilities-brief.md:83"
+    timestamp: "2026-04-19"
+
+# ============================================================================
+# MODEL PRICING — external (vendor public)
+# ============================================================================
+
+- id: pricing_claude_opus_47
+  claim: "Claude Opus 4.7 — 1M context"
+  canonical_phrasing: "Claude Opus 4.7 (1M context)"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "Anthropic pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_claude_sonnet
+  claim: "Claude Sonnet 4.6 — $3/M in, $15/M out"
+  canonical_phrasing: "$3/M in, $15/M out"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "Anthropic pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_claude_haiku
+  claim: "Claude Haiku 4.5 — $0.25/M in, $1.25/M out"
+  canonical_phrasing: "$0.25/M in, $1.25/M out"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "Anthropic pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_grok_4_20
+  claim: "Grok 4.20-reasoning — $2/M in, $6/M out"
+  canonical_phrasing: "$2/M in, $6/M out"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "xAI pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_grok_4_1_fast
+  claim: "Grok 4.1-fast-reasoning — $0.20/M in, $0.50/M out ($0.05/M cached input), 2M context"
+  canonical_phrasing: "$0.20/M in, $0.50/M out"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "xAI pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_xai_tts
+  claim: "xAI TTS — $4.20/M characters (~40× cheaper than ElevenLabs Turbo)"
+  canonical_phrasing: "$4.20/M characters"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "xAI pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_xai_voice_agent
+  claim: "xAI Voice Agent API — $3/hr full-duplex"
+  canonical_phrasing: "$3/hr"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "xAI pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_xai_stt
+  claim: "xAI STT — $0.10/hr batch, $0.20/hr streaming"
+  canonical_phrasing: "$0.10/hr batch, $0.20/hr streaming"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "xAI pricing page"
+    timestamp: "2026-04-19"
+
+- id: pricing_runway_gen3
+  claim: "RunwayML Gen-3 — $0.05/sec generated"
+  canonical_phrasing: "$0.05/sec"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "RunwayML pricing"
+    timestamp: "2026-04-19"
+
+- id: pricing_resend
+  claim: "Resend — ~$20/mo for 50K transactional emails"
+  canonical_phrasing: "~$20/mo for 50K transactional"
+  category: vendor_pricing
+  source:
+    type: vendor_public_pricing
+    location: "Resend pricing"
+    timestamp: "2026-04-19"
+
+# ============================================================================
+# EXPLICIT PROHIBITIONS — claims that MUST NOT appear (failed the 2026-04-19 pivot)
+# ============================================================================
+
+- id: PROHIBITED_deployment_rate_95
+  claim: "95% Deployment Rate"
+  canonical_phrasing: "PROHIBITED — never cite"
+  category: PROHIBITED
+  source:
+    type: commitment
+    location: "2026-04-19 pivot — on-voice hallucination escape"
+    timestamp: "2026-04-19"
+  context: "This claim appeared in production copy without a source. Added as explicit prohibition. Never use."
+
+- id: PROHIBITED_hours_removed_10000
+  claim: "10,000+ Hours Removed"
+  canonical_phrasing: "PROHIBITED — never cite"
+  category: PROHIBITED
+  source:
+    type: commitment
+    location: "2026-04-19 pivot — on-voice hallucination escape"
+    timestamp: "2026-04-19"
+
+- id: PROHIBITED_elevenlabs_integration
+  claim: "ElevenLabs integration (as a service offered)"
+  canonical_phrasing: "PROHIBITED — Josh can wire it in, doesn't offer it as packaged service"
+  category: PROHIBITED
+  source:
+    type: commitment
+    location: "2026-04-19 pivot"
+    timestamp: "2026-04-19"
+  context: "Use 'I can wire this in' phrasing, not 'I offer ElevenLabs integration.'"
+
+- id: PROHIBITED_runwayml_integration
+  claim: "RunwayML integration (as a service offered)"
+  canonical_phrasing: "PROHIBITED — same as ElevenLabs; wireable not packaged"
+  category: PROHIBITED
+  source:
+    type: commitment
+    location: "2026-04-19 pivot"
+    timestamp: "2026-04-19"
+
+- id: PROHIBITED_synthesia_integration
+  claim: "Synthesia integration (as a service offered)"
+  canonical_phrasing: "PROHIBITED — never deployed, should not be listed"
+  category: PROHIBITED
+  source:
+    type: commitment
+    location: "2026-04-19 pivot"
+    timestamp: "2026-04-19"
+
+# ============================================================================
+# INTERVIEW 2026-04-19 — ORIGIN SESSION ADDITIONS
+# Source: live coach interview (origin topic). Every entry sourced from
+# Joshua's own verbatim statements during the session.
+# ============================================================================
+
+- id: joshua_name_canonical
+  claim: "Name is Joshua Nowak, never Josh"
+  canonical_phrasing: "Joshua Nowak"
+  category: identity
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+  trauma_ref: "Josh drift recurred through sessions 9-12. Locked canonical to Joshua 2026-04-19."
+
+- id: joshua_june_2025_notice
+  claim: "Put in 30-day notice at ElektraFi in June 2025"
+  canonical_phrasing: "put in notice in June 2025"
+  category: identity
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: joshua_first_git_commit
+  claim: "First git commit June 2025 (post-notice, transitioning into AI/innovation role)"
+  canonical_phrasing: "first git commit in June 2025"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: zeststream_formation
+  claim: "Colorado LLC formed September 2025; originally coined 'brainzest' before rebranding to ZestStream"
+  canonical_phrasing: "Colorado LLC, September 2025"
+  category: identity
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: zirkel_sale_closed
+  claim: "ZIRKEL sale closed July 2024"
+  canonical_phrasing: "sold ZIRKEL in July 2024"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: texas_acquisition_date
+  claim: "Texas ISP acquired by buyer in September 2024"
+  canonical_phrasing: "Texas acquisition closed September 2024"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: texas_merger_work
+  claim: "Onsite Texas merger January–May 2025: let go over half the staff; unified operational protocols"
+  canonical_phrasing: "merged a Texas ISP acquisition January–May 2025"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: joshua_tenure_pattern
+  claim: "20+ years of operator experience across financial planning (MBA 2018, fee-only advisory), ISP technical sales, ops leadership (Director of Ops), AI systems"
+  canonical_phrasing: "20+ years of operator experience"
+  category: identity
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: joshua_mba_2018
+  claim: "Finished MBA in 2018"
+  canonical_phrasing: "MBA, 2018"
+  category: identity
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: zirkel_cleanup_18mo
+  claim: "Cleaned up ZIRKEL operations 2020-2024 ahead of sale: replaced entire office staff, deployed HubSpot, automated operations, brought in brother, prepared for sale"
+  canonical_phrasing: "18 months preparing ZIRKEL for sale"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: hardware_migration_30k
+  claim: "Migrated 30,000+ pieces of hardware in sonar.software in November 2025 prepping for Gaiia migration"
+  canonical_phrasing: "migrated 30,000+ pieces of hardware"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: data_cleanup_20yr_5co
+  claim: "Cleaned up 20 years of operational data across 5 companies in November 2025"
+  canonical_phrasing: "20 years of operational data across 5 companies"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: joshua_225k_counter
+  claim: "Offered $225k to stay at ZIRKEL in 2020 to run 18-month sale-prep cleanup"
+  canonical_phrasing: "$225k offer to stay and prep the sale"
+  public_phrasing: "a retention offer"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: director_of_ops_promotion
+  claim: "Promoted to Director of Ops January 2025 (during Texas merger work)"
+  canonical_phrasing: "promoted to Director of Ops January 2025"
+  category: receipts
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: pricing_engagement_floor
+  claim: "Minimum engagement $3,000-$5,000; hourly rate $100-$175"
+  canonical_phrasing: "$3-5k engagement minimum, $100-$175/hr"
+  category: pricing
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+
+- id: flywheel_compound_operator
+  claim: "Every build becomes replicable for any future project (compound operator capital)"
+  canonical_phrasing: "everything I build becomes replicable for any future project"
+  category: positioning
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+  provenance_chain: "ZIRKEL cleanup → Texas merger playbook → ISP customer-support AI → CubCloud vendor-architect → ZestStream multi-agent ecosystem"
+
+- id: yuzu_tree_metaphor
+  claim: "Yuzu is a Japanese citrus that takes 18 years to bear fruit; zest is the most valuable part"
+  canonical_phrasing: "yuzu takes 18 years to bear fruit"
+  category: brand_metaphor
+  source:
+    type: commitment
+    location: "interview:2026-04-19-origin"
+    timestamp: "2026-04-19"
+  alignment: "20 years of operator work = the tree. ZestStream ecosystem = the zest."
+
+- id: remy_product
+  label: "Remy — Digital Employee for Small Business"
+  description: "Progressive-autonomy digital employee platform (Shadow → Assisted → Autonomous) for non-technical SMB owners. Per-tenant isolation, Stripe billing. Python 3.13 + Next.js 16 + FastAPI monorepo. Named after Remy St-Pierre, a person Joshua worked with who showed up and did great work."
+  brand_url: "remy.zeststream.ai"
+  first_commit: "2026-03-21"
+  latest_commit: "2026-04-07"
+  deployment: "remy.zeststream.ai"
+  github: "https://github.com/JYeswak/remy"
+  positioning: "SMB owners hire Remy like a new employee — Shadow mode = onboarding, Assisted = supervised, Autonomous = trusted and independent"
+  tech_stack: ["Python 3.13", "Next.js 16", "FastAPI", "Stripe", "per-tenant isolation"]
+  autonomy_modes: ["Shadow", "Assisted", "Autonomous"]
+  formerly: "cubcloud-aaas"
+  source:
+    type: "repo"
+    location: "github:JYeswak/remy"
+    timestamp: "2026-04-19"
+  alignment: "Concrete proof-point that Joshua ships production AI agent systems, not just advises on them."
+
+# ============================================================================
+# REPO INVENTORY — full 2025→2026 trail (Session 14, 2026-04-19)
+# Schema: see bead zt-consult-26ln Step 1 for field definitions.
+# GUARDRAILS:
+#   - approved_for_public defaults false on ALL entries — Joshua reviews per-entry
+#   - repo_scope enum: zeststream_ip | zeststream_client_delivery | zeststream_deployment | external_tool | cubcloud_platform
+#   - bears-admin (95 Gitea repos) EXCLUDED — not Joshua's
+# ============================================================================
+
+repos:
+
+  # --------------------------------------------------------------------------
+  # zeststream_ip — Joshua built solo, owns
+  # --------------------------------------------------------------------------
+
+  - name: remy
+    current_host: "GitHub JYeswak/remy"
+    target_host: "GitHub JYeswak/remy"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    public_phrasing: "AI agents for non-technical business owners. Shadow. Assisted. Autonomous."
+    delivery_vehicle: zeststream
+    previous_internal_names: ["cubcloud-aaas"]
+    rename_date: "2026-04-19"
+    rename_rationale: "Product is Joshua's ZestStream IP, not cubcloud-scope; 'cubcloud-aaas' conflated the delivery vehicle with product ownership"
+    last_verified: "2026-04-19"
+
+  - name: polymarket-pico-z
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    joshua_commits: 3414
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    source:
+      type: repo_link
+      location: "github:JYeswak/polymarket-pico-z"
+      timestamp: "2026-04-19"
+
+  - name: cubcloud-bears
+    current_host: "Gitea jzest/"
+    target_host: "Gitea jzest/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 6900
+    status: work_in_progress
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "LangGraph senior-dev-team platform. WIP — DO NOT USE ON V1 SITE. Migration candidate post-ship."
+
+  - name: openclaw-smb
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: paused
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Paused — not top of mind until desired or Joshua puts it at top of list."
+
+  - name: cfs-expo
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    joshua_commits: 449
+    status: shipped
+    approved_for_public: false
+    client: clutterfreespaces
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+
+  - name: zeststream-v2-fresh
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    joshua_commits: 3210
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+
+  - name: ZestStream-v2
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "V2 marketing site started 2025-12-17; predecessor to zeststream-v2-fresh."
+
+  - name: zesttube
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: work_in_progress
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+
+  - name: ZestStream-v1
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 822000
+    status: deprecated
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Original zeststream.ai — built September 2025, same month Colorado LLC formed. Historical receipt."
+
+  - name: Operations
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 100000
+    status: deprecated
+    approved_for_public: false
+    delivery_vehicle: n/a
+    last_verified: "2026-04-19"
+    context: "ElektraFi-era Postgres operations surface. Created 2025-07-17; last push 2025-12-12. Direct receipt for 20-year data cleanup claim."
+
+  - name: multi-agent
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: deprecated
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Created 2025-07-31 — Joshua's first ZestStream-thesis git commit after June 2025 notice. Historical anchor."
+
+  - name: chatbot
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 3300
+    status: deprecated
+    approved_for_public: false
+    delivery_vehicle: n/a
+    last_verified: "2026-04-19"
+    context: "EFI (ElektraFi) chatbot. Created 2025-08-10. ISP customer-support AI matching interview Round 5 claim."
+
+  - name: ClutterFreeSpaces
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 10400
+    status: shipped
+    approved_for_public: false
+    client: clutterfreespaces
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Newsletter automation system. Created 2025-08-30 — client relationship started 5+ months before April 2026 expo launch."
+
+  - name: sinfulgemma
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 3300
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "OnlyFans management Next.js 15 app. Created 2025-09-29. Client or experimental."
+
+  - name: opencode-grok-first-router
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Claude Code router prototype. Created 2026-01-14."
+
+  - name: swarm-daemon
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Multi-agent orchestration. Created 2026-01-24."
+
+  - name: Customer_Service
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-26."
+
+  - name: Dialpad-HubSpot-Integration
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-26."
+
+  - name: 100minds-mcp
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-29. Part of 100minds project family."
+
+  - name: 100minds-ai
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-29."
+
+  - name: 100-minds-research
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-29."
+
+  - name: agent-improvement-meta
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-29."
+
+  - name: ISP-Acquisition-AI
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "ElektraFi-context AI for ISP M&A. Created 2026-01-29. ISP domain extension."
+
+  - name: ceo-api-service
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-29."
+
+  - name: claims-automation-catalog
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Insurance domain. Created 2026-01-29."
+
+  - name: eo-insurance-catalog
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Insurance domain. Created 2026-01-29."
+
+  - name: ServerPlus-Research
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-29."
+
+  - name: email-assistant
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Created 2026-01-30."
+
+  - name: video-audio-mcp
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Media MCP server. Created 2026-01-30."
+
+  - name: gpu-optimization
+    current_host: "GitHub JYeswak/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_ip
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Extracted from cubcloud work. Created 2026-02-26."
+
+  # --------------------------------------------------------------------------
+  # zeststream_client_delivery — Joshua built for named client, Joshua owns code
+  # --------------------------------------------------------------------------
+
+  - name: terratitle
+    current_host: "Gitea cubby/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_client_delivery
+    joshua_role: primary_author
+    built_solo_by_joshua: false
+    build_scope:
+      backend: "joshua_100"
+      database: "joshua_100"
+      frontend: "joshua_primary_with_third_party_input"
+    third_party_contribution: "CubCloud-hired local dev contributed to frontend only; Joshua rebuilt frontend from scratch after inheriting a basic one, then dev added input later"
+    size_kb: 81000
+    joshua_commits: 1130
+    status: shipped
+    approved_for_public: false
+    client: terratitle
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Montana property intel, 56-county data pipeline. Backend/DB claims are 100% Joshua; frontend claim must preserve third_party_contribution caveat or narrow to backend-only."
+
+  - name: blackfoot
+    current_host: "Gitea jzest/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_client_delivery
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 81000
+    status: shipped
+    approved_for_public: false
+    client: blackfoot_telecom
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "AI plant records cleanup, 6 LangGraph agents, SaaS-expandable. Created 2026-03-06."
+
+  - name: alps-insurance
+    current_host: "Gitea jzest/ + GitHub JYeswak/ mirror"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_client_delivery
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    size_kb: 6700
+    status: shipped
+    approved_for_public: false
+    client: alps_insurance
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "Unified intelligence layer replacing Workato. Created 2026-02-15."
+
+  - name: vrtx
+    current_host: "Gitea jzest/"
+    target_host: "GitHub JYeswak/"
+    repo_scope: zeststream_client_delivery
+    joshua_role: sole_author
+    built_solo_by_joshua: true
+    status: shipped
+    approved_for_public: false
+    client: vrtx_gym
+    delivery_vehicle: zeststream
+    last_verified: "2026-04-19"
+    context: "VRTX Gym discovery engagement. AaaS conversion target."
+
+  # --------------------------------------------------------------------------
+  # zeststream_deployment — third-party OSS Joshua deployed/integrated; NOT built
+  # --------------------------------------------------------------------------
+
+  - name: openfang
+    current_host: "Gitea jzest/"
+    target_host: "Gitea jzest/"
+    repo_scope: zeststream_deployment
+    upstream_author: "RightNow-AI"
+    upstream_url: "https://github.com/RightNow-AI/openfang"
+    joshua_role: deployer
+    built_solo_by_joshua: false
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Joshua deployed this Rust inference service + local Mattermost instance integration. 4.63B tokens/day is Joshua's deployment observation, NOT 'openfang that Joshua built.' NEVER write 'Joshua built openfang.'"
+
+  - name: openfang-setup
+    current_host: "Gitea jzest/"
+    target_host: "Gitea jzest/"
+    repo_scope: zeststream_deployment
+    upstream_author: "RightNow-AI"
+    upstream_url: "https://github.com/RightNow-AI/openfang"
+    joshua_role: deployer
+    built_solo_by_joshua: false
+    size_kb: 21000
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Deployment scaffolding for openfang. Joshua's own setup scripts, but openfang core is RightNow-AI."
+
+  - name: openfang-deploy
+    current_host: "Gitea jzest/"
+    target_host: "Gitea jzest/"
+    repo_scope: zeststream_deployment
+    upstream_author: "RightNow-AI"
+    upstream_url: "https://github.com/RightNow-AI/openfang"
+    joshua_role: deployer
+    built_solo_by_joshua: false
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+
+  - name: openfang-config
+    current_host: "Gitea jzest/"
+    target_host: "Gitea jzest/"
+    repo_scope: zeststream_deployment
+    upstream_author: "RightNow-AI"
+    upstream_url: "https://github.com/RightNow-AI/openfang"
+    joshua_role: deployer
+    built_solo_by_joshua: false
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+
+  # --------------------------------------------------------------------------
+  # external_tool — Jeff Emanuel (Dicklesworthstones) tools; NEVER attribute to Joshua
+  # --------------------------------------------------------------------------
+
+  - name: mcp-agent-mail
+    current_host: "GitHub JYeswak/ (fork) + upstream Dicklesworthstones"
+    target_host: "upstream"
+    repo_scope: external_tool
+    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    joshua_role: user
+    built_solo_by_joshua: false
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: n/a
+    last_verified: "2026-04-19"
+    context: "NEVER attribute to Joshua. Jeff Emanuel's agent coordination layer."
+
+  - name: ntm
+    current_host: "Gitea jzest/"
+    target_host: "upstream Dicklesworthstones"
+    repo_scope: external_tool
+    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    joshua_role: contributor
+    built_solo_by_joshua: false
+    size_kb: 41000
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: n/a
+    last_verified: "2026-04-19"
+    context: "Named tmux manager. Joshua: 31 of 2,311 commits (contributor, not author). NEVER claim as Joshua IP."
+
+  - name: beads_rust
+    current_host: "upstream Dicklesworthstones"
+    target_host: "upstream"
+    repo_scope: external_tool
+    upstream_author: "Jeff Emanuel (Dicklesworthstones)"
+    joshua_role: user
+    built_solo_by_joshua: false
+    status: shipped
+    approved_for_public: false
+    delivery_vehicle: n/a
+    last_verified: "2026-04-19"
+    context: "Bead tracking CLI. NEVER attribute to Joshua."
+
+  # --------------------------------------------------------------------------
+  # cubcloud_platform — TBD; defer scope decision, flag for next review
+  # --------------------------------------------------------------------------
+
+  - name: cubcloud-console
+    current_host: "Gitea cubcloud/"
+    target_host: "TBD"
+    repo_scope: cubcloud_platform
+    joshua_role: "TBD — needs scope audit"
+    built_solo_by_joshua: false
+    size_kb: 299000
+    status: work_in_progress
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Scope decision deferred. File separate audit bead."
+
+  - name: cubcode-config
+    current_host: "Gitea jzest/"
+    target_host: "TBD"
+    repo_scope: cubcloud_platform
+    joshua_role: "TBD — needs scope audit"
+    built_solo_by_joshua: false
+    size_kb: 1270000
+    status: work_in_progress
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Agent worker config — 1.27 GB. Scope decision deferred."
+
+  - name: cubden-backend
+    current_host: "Gitea jzest/"
+    target_host: "TBD"
+    repo_scope: cubcloud_platform
+    joshua_role: "TBD — needs scope audit"
+    built_solo_by_joshua: false
+    size_kb: 11200000
+    status: work_in_progress
+    approved_for_public: false
+    delivery_vehicle: cubcloud
+    last_verified: "2026-04-19"
+    context: "Cubden platform backend — 11.2 GB. Scope decision deferred."
+
+# ============================================================================
+# CLIENTS — named engagements with Joshua as ZestStream operator
+# Default approved_for_public: false — Joshua reviews per entry.
+# ============================================================================
+
+clients:
+
+  - id: clutterfreespaces
+    legal_name: "Clutter Free Spaces"
+    engagement_start: "2025-08-30"
+    delivery_vehicle: zeststream
+    approved_for_public: false
+    public_phrasing: "ClutterFreeSpaces — newsletter automation + MBIA expo chatbot"
+    relationship_context: chanel
+    artifacts:
+      - ClutterFreeSpaces
+      - cfs-expo
+    last_verified: "2026-04-19"
+
+  - id: terratitle
+    legal_name: "TerraTitle"
+    engagement_start: "2026-02-26"
+    delivery_vehicle: zeststream
+    approved_for_public: false
+    public_phrasing: "TerraTitle — Montana property intel, 56-county data pipeline"
+    build_caveat: "frontend had later contribution from CubCloud-hired local dev; backend and database 100% Joshua"
+    artifacts:
+      - terratitle
+    last_verified: "2026-04-19"
+
+  - id: blackfoot_telecom
+    legal_name: "Blackfoot Telecom"
+    engagement_start: "2026-03-06"
+    delivery_vehicle: zeststream
+    approved_for_public: false
+    artifacts:
+      - blackfoot
+    last_verified: "2026-04-19"
+
+  - id: alps_insurance
+    legal_name: "ALPS Insurance"
+    engagement_start: "2026-02-15"
+    delivery_vehicle: zeststream
+    approved_for_public: false
+    artifacts:
+      - alps-insurance
+    last_verified: "2026-04-19"
+
+  - id: vrtx_gym
+    legal_name: "VRTX Gym"
+    engagement_start: "TBD"
+    delivery_vehicle: zeststream
+    approved_for_public: false
+    artifacts:
+      - vrtx
+    last_verified: "2026-04-19"
+
+# ============================================================================
+# RELATIONSHIPS — personal/professional relationships that affect copy framing
+# These entries govern how copy about certain clients is written.
+# ============================================================================
+
+relationships:
+
+  - id: chanel
+    role: "partner"
+    organization: "Clutter Free Spaces (owner)"
+    met_date: "2025-08"
+    disclosure_policy: "Name not on public site by default; relationship may be disclosed in video/interview context if it comes up naturally; never hide if asked directly. Private skill enforces: copy that frames CFS as an arms-length cold client acquisition gets auto-rejected."
+    disclosure_policy_status: "DRAFT — Joshua should review and revise exact wording before this becomes load-bearing"
+    applies_to_clients:
+      - clutterfreespaces
+    applies_to_projects:
+      - ClutterFreeSpaces
+      - cfs-expo
+    last_verified: "2026-04-19"

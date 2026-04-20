@@ -1,0 +1,249 @@
+# brand voice template — copy to brands/<slug>/voice.yaml and fill in
+# See references/DISCOVER.md for the onboarding flow
+# See references/CORPUS_SIGNATURES.md for the situation_playbooks / rhythm / corpus schema additions (v0.2)
+
+brand:
+  slug: ""                  # short kebab-case identifier, e.g. "blackfoot"
+  name: ""                  # display name, e.g. "Blackfoot Telecom"
+  operator: ""              # named person (or null if not applicable)
+  domain: ""                # primary domain
+  source_of_truth: ""       # path to canonical brief doc
+  ground_truth: "../../data/capabilities-ground-truth.yaml"
+
+canon:
+  primary: ""               # the one sentence
+  variants_approved: []
+  rule: "Primary canon appears verbatim at least once per top-level route."
+
+method:
+  name_full: ""             # if the brand has a named method
+  phases: {}                # optional; skip if no method
+
+posture:
+  voice: "first-person singular"  # or first-person plural, second-person, third-person
+  pronouns_allowed: []
+  pronouns_banned: []
+  attribution_rule: ""
+
+three_moves:
+  mandatory_on_conversion_surfaces: true
+  moves:
+    - id: ""
+      rule: ""
+    - id: ""
+      rule: ""
+    - id: ""
+      rule: ""
+
+banned_words: []            # from founder interview + cluster analysis + universal consultant-tells
+
+banned_phrases: []
+
+claims:
+  mode: "cite_or_omit"
+  ungrounded_auto_reject: true
+  vague_quantifier_auto_reject: true
+  testimonial_without_name: reject
+  capability_without_receipt: reject
+  ground_truth_source: "../../data/capabilities-ground-truth.yaml"
+  extraction:
+    patterns:
+      - '\b\d[\d,]*\s*(?:\w+)'
+      - '\$[\d,]+(?:k|K)?(?:/mo|/month|/hr|/yr)?'
+      - '\b\d+(?:\.\d+)?%'
+      - '\b\d+(?:\.\d+)?×'
+
+surfaces:
+  hero:
+    sentence_max_words: 18
+    paragraphs_max: 1
+    register: ""
+    must_have: []
+  body:
+    sentence_max_words: 25
+    paragraph_max_sentences: 3
+    register: ""
+  cta:
+    sentence_max_words: 12
+    register: ""
+    max_per_page: 2
+  email:
+    sentence_max_words: 22
+    signoff: ""
+    register: ""
+  post:
+    sentence_max_words: 25
+    register: ""
+    must_name_receipt: true
+  meta:
+    sentence_max_words: 20
+    character_max: 160
+    register: ""
+
+audiences:
+  operator: {register_adjust: ""}
+  candidate: {register_adjust: ""}
+  customer: {register_adjust: ""}
+  general: {register_adjust: ""}
+
+word_caps_per_route:
+  "/": 600
+  default: 800
+
+trademarks:
+  brand_names: {}
+
+# ============================================================================
+# SITUATION PLAYBOOKS (v0.2 — ported from alignmenter Wendy's example)
+# Per-scenario response strategies. Each situation has ordered rules.
+# Layer 2 (Rules) uses this to validate that crisis copy doesn't read like
+# product-promo copy, that customer-service copy isn't sales copy, etc.
+# ============================================================================
+situation_playbooks:
+  customer_service:
+    rules: []              # 3–5 one-liners, e.g. "help but make it specific"
+  competitor_mention:
+    rules: []              # "roast allowed: never / sometimes / always"
+    naming_policy: ""      # "never name directly" | "name only on /vs/X pages" | "free mention"
+  product_promo:
+    rules: []
+  community_engagement:
+    rules: []
+  crisis_response:
+    rules: []              # "acknowledge seriously, direct to DMs for resolution"
+
+# ============================================================================
+# VOICE EXAMPLES BY CONTEXT (v0.2 — ported from alignmenter)
+# Pre-paired on-brand / off-brand examples, grouped by moment.
+# Used by the /enforce-voice slash command as retrieval priors
+# AND by Layer 4 LLM rubric as few-shot exemplars in the prompt.
+# ============================================================================
+voice_examples_by_context:
+  greeting:
+    on_brand: []           # 3+ example lines
+    off_brand: []          # 3+ anti-examples (what the scorer rejects)
+  problem_acknowledgment:
+    on_brand: []
+    off_brand: []
+  call_to_action:
+    on_brand: []
+    off_brand: []
+  product_mention:
+    on_brand: []
+    off_brand: []
+  competitor_reference:
+    on_brand: []
+    off_brand: []
+
+# ============================================================================
+# BOUNDARIES (v0.2 — ported from alignmenter)
+# Per-category positive/negative pairs. Each boundary is "X, not Y."
+# Layer 2 checks these as soft rules; violation drops `brand_voice` dim by 2.
+# ============================================================================
+boundaries:
+  tone: []                 # e.g. ["confident not arrogant", "playful not mean-spirited"]
+  humor: []                # e.g. ["roast competitors, never customers"]
+  scope: []                # e.g. ["help when asked, sass when appropriate"]
+  pricing: []              # e.g. ["all tiers visible, never 'contact sales' as first gate"]
+
+# ============================================================================
+# RHYTHM / CORPUS SIGNATURES (v0.2 — ported from houtini voice-analyser-mcp)
+# Target stylometric fingerprint extracted from approved corpus.
+# Layer 1 regex-layer adds `rhythm_variance` check: sentence-length
+# coefficient-of-variation must fall within the band below, or dim drops.
+# See references/CORPUS_SIGNATURES.md for the extraction algorithm.
+# ============================================================================
+rhythm:
+  sentence_length:
+    mean_target: 15        # approved corpus average, in words
+    mean_tolerance: 5      # drift >±5 words from target → dim penalty
+    stdev_target: 7        # natural human variance target (monotone AI = 2–3)
+    stdev_min: 4           # below this = mechanical / AI-slop signature
+  burstiness:
+    target: 0.45           # coefficient of variation (stdev / mean)
+    min: 0.25              # below this = mechanical
+    max: 0.80              # above this = incoherent
+  paragraph_length:
+    sentences_per_para_max: 4
+    sentences_per_para_target: 2
+  starter_variation:
+    top_3_starters_max_share: 0.30  # top 3 sentence-starter words ≤ 30% of sentences
+
+# Extracted signature from actual brand corpus (populated by corpus-analysis in Peel)
+corpus_signature:
+  analyzed_at: ""          # ISO timestamp of last corpus run
+  source: ""               # URL or path of corpus analyzed
+  sentence_count: 0
+  mean_sentence_length: 0.0
+  stdev_sentence_length: 0.0
+  burstiness: 0.0
+  top_starters: []         # [{word, share}] — top 10 sentence starters
+  top_enders: []           # [{punct, share}]
+  complexity_distribution:
+    simple: 0.0
+    compound: 0.0
+    complex: 0.0
+  zero_tolerance_patterns: []  # patterns flagged by the 16-analyser sweep with alternatives
+                               # e.g. {pattern: "delve into", alternative: "check", reason: "AI-slop signature"}
+
+rubric:
+  version: 2               # bumped from v1 (v0.2 adds rhythm_variance + situation_fit dims)
+  kind: composite_16_dim   # was 15; now 16 with rhythm_variance
+  thresholds:
+    banned_word_present: block
+    composite_below_85: block
+    composite_85_to_94: regen
+    composite_ge_95: ship
+    any_dim_below_9: block
+  weights:
+    regex_pass: 0.15
+    rules_pass: 0.20
+    embedding_pass: 0.25
+    llm_rubric_pass: 0.40
+  dimensions:
+    - {id: testable, description: ""}
+    - {id: secure, description: ""}
+    - {id: fun, description: ""}
+    - {id: valuable, description: ""}
+    - {id: easy, description: ""}
+    - {id: brand_voice, description: ""}
+    - {id: canon_present, description: ""}
+    - {id: person_named, description: ""}
+    - {id: receipt_shown, description: ""}
+    - {id: invite_not_pitch, description: ""}
+    - {id: yuzu_phase_mapped, description: ""}   # drop if brand doesn't use Yuzu method
+    - {id: plain_language, description: ""}
+    - {id: specificity, description: ""}
+    - {id: rhythm, description: ""}
+    - {id: friction_calibrated, description: ""}
+    - {id: rhythm_variance, description: "Sentence-length burstiness in target band per rhythm block (AI-slop detection)"}
+
+exemplars:
+  storage: "exemplars/<surface>/<slug>.md"
+  promote_threshold: 98
+  aging_hours: 48
+  quarantine_threshold_on_reaudit: 90
+  rag_collection: "brand_voice_exemplars_<slug>"
+  qdrant_port: 6433
+  qdrant_volume: "qdrant_ks_data"
+  embedder: "nomic-embed-text"
+  embed_dim: 768
+  dedup_cosine_threshold: 0.92
+
+trauma:
+  storage: "trauma.jsonl"
+  append_only: true
+  promote_to_rule_at_recurrence: 3
+
+logging:
+  scorecard_jsonl: ".planning/scorecard-log.jsonl"
+
+integration:
+  scorer_api: "http://localhost:7731/score"
+  pre_commit_hook: ".ops/voice-lint.sh"
+  prod_probe: ".ops/voice-reach-check.sh"
+  drift_block_threshold: 3
+
+invariants:
+  never: []
+  always: []
