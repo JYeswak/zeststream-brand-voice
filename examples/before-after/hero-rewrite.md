@@ -46,13 +46,13 @@ Claims ungrounded: none to extract (there are no factual claims; that's *also* a
 ```
 I build things that work, and I show you the receipt.
 
-I'm Josh Nowak. I wire AI into businesses that already work —
+I'm Joshua Nowak. I wire AI into businesses that already work —
 96 production n8n workflows, an 8-GPU inference stack rebuilt from
 bare metal, a 910× cache-hit improvement on a 2-line regex.
 
 Book a 20-minute Peel session. $0. Specific. No pitch at the end.
 
-[Book with Josh →]
+[Book with Joshua →]
 ```
 
 **Scorer verdict: SHIP (composite 97)**
@@ -64,12 +64,12 @@ Dim breakdown:
 | testable | 10 | Every claim has a source in `capabilities-ground-truth.yaml` |
 | brand_voice | 10 | First-person singular; matches posture in `voice.yaml` |
 | canon_present | 10 | Canon line present, verbatim |
-| person_named | 10 | "I'm Josh Nowak" |
+| person_named | 10 | "I'm Joshua Nowak" |
 | receipt_shown | 10 | Three receipts inline (96 workflows, 8-GPU stack, 910× cache) |
 | invite_not_pitch | 10 | "Book a 20-min Peel session, $0, no pitch at the end" |
 | yuzu_phase_mapped | 9 | Peel named; Press/Pour implied via the method name; could be more explicit |
 | plain_language | 10 | Short sentences, concrete nouns, zero hedging |
-| specificity | 10 | Swap test passes — sentence breaks if you remove "Josh" or the specific numbers |
+| specificity | 10 | Swap test passes — sentence breaks if you remove "Joshua" or the specific numbers |
 
 Banned words: none.
 

@@ -63,7 +63,7 @@ Fast, deterministic, no LLM. Runs first, fails fast.
    - `The Yuzu Method ®` on first use per asset
    - `Peel. Press. Pour.™` exact
    - `Peel|Press|Pour` as standalone phase names OK after first full motto use
-   - First use of `Josh Nowak` full (subsequent "Josh" OK)
+   - First use of `Joshua Nowak` full (subsequent "Joshua" OK — never "Josh")
 4. **Forbidden pronouns** — for ZestStream brand: `we|our|our team|ZestStream delivers`. Match → block.
 5. **Sentence-length cap** — per `voice.yaml.surfaces.<surface>.sentence_max_words`. Violating sentences flagged, dim `rhythm` drops 2 per violation.
 6. **Vague quantifiers** — `roughly|approximately|about \d+%|many clients|some users`. Match → block (cite-or-omit rule).
@@ -234,7 +234,7 @@ for each exemplar in brands/<slug>/exemplars/:
 
 When `trauma.jsonl` shows the same `regen_hint` category recurring 3+ times:
 1. Auto-generate a new `voice.yaml` rule candidate
-2. Write `.planning/voice-rule-proposals/<slug>.md` for Josh's review
+2. Write `.planning/voice-rule-proposals/<slug>.md` for Joshua's review
 3. On approval, merge into `voice.yaml` and tag commit `voice-rule-promotion`
 4. Run fresh audit on all exemplars to verify new rule doesn't regress the corpus
 

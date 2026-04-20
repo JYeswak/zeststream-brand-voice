@@ -84,7 +84,7 @@ Default to **operator × phase=na** — build-confident, specific, technical-acc
 Coordinate: hero × customer × peel → `direct + inviting`
 
 **Right:**
-> "I'm Josh. Book a 20-minute Peel session and we'll map the system you're running. Free, specific, no pitch at the end. I build things that work, and I show you the receipt."
+> "I'm Joshua. Book a 20-minute Peel session and we'll map the system you're running. Free, specific, no pitch at the end. I build things that work, and I show you the receipt."
 
 Why: declarative, first-person, concrete ("20-minute", "map the system"), inviting ("book"), no hedge, canon at end, audience-appropriate (customer, not operator).
 
@@ -126,7 +126,7 @@ Why: tension (broken state) → insight (cause) → receipt (numbers + diff size
 Coordinate: meta × general × na → `declarative-meta + specific`, max 20 words, 160 chars.
 
 **Right (158 chars):**
-> "Josh Nowak wires AI systems into your stack. 96 production n8n workflows, 8-GPU rebuild for CubCloud. $5k Peel session, $15k+ builds."
+> "Joshua Nowak wires AI systems into your stack. 96 production n8n workflows, 8-GPU rebuild for CubCloud. $5k Peel session, $15k+ builds."
 
 Why: specific (96, 8, $5k, $15k), declarative, no verbs beyond essential, under char limit.
 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Brand-voice enforcement for AI-generated marketing copy, built as a Meadows-style system: 4-layer hybrid scorer (regex + rules + embeddings + LLM rubric), mandatory claim-grounding against a source-of-truth YAML so factually-hallucinated-but-on-voice copy can't ship, and a trauma-to-rule promotion loop so the system gets smarter every session.",
   "author": {
-    "name": "Josh Nowak",
+    "name": "Joshua Nowak",
     "email": "josh@zeststream.ai",
     "url": "https://zeststream.ai"
   },

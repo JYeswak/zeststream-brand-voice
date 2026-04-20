@@ -10,7 +10,7 @@ Rule: every sentence of outbound copy should be decodable against one of these c
 
 | # | We are… | Evidence / receipt |
 |---|---------|-------------------|
-| 1 | **A solo operator** — Josh Nowak, Montana | 14 years at ZIRKEL; left ElektraFi end of 2025; no team |
+| 1 | **A solo operator** — Joshua Nowak, Montana | 14 years at ZIRKEL; left ElektraFi end of 2025; no team |
 | 2 | **A builder** — ship working systems, not slide decks | 96 production n8n workflows at n8n.zeststream.ai; CubCloud 8-GPU rebuild; 100+ containers |
 | 3 | **A wiring specialist** — integrate parts into your specific stack | Prompt engineering, RAG, tool use, OAuth, webhooks, cron, probe discipline |
 | 4 | **A systems thinker** (Meadows) | This skill exists as a Meadows #6 intervention. Stocks, flows, loops, iceberg. |
@@ -45,16 +45,16 @@ Rule: every sentence of outbound copy should be decodable against one of these c
 ## Edge cases (where writers drift)
 
 ### "What about client's team? Are they 'we'?"
-When writing from the client's perspective (e.g. a case study voiced in operator-speak): sure, `we` is fine. But the brand voice on zeststream.ai speaks for Josh. `We` almost always drifts toward consulting-firm posture. Default: rewrite to `I` or split the sentence.
+When writing from the client's perspective (e.g. a case study voiced in operator-speak): sure, `we` is fine. But the brand voice on zeststream.ai speaks for Joshua. `We` almost always drifts toward consulting-firm posture. Default: rewrite to `I` or split the sentence.
 
 ### "What about CubCloud?"
-CubCloud runs the business. Josh is their architecture partner. Writing *about* CubCloud uses third-person ("CubCloud runs production AI inference on a GPU stack I rebuilt"). Never "we at CubCloud." Never "our CubCloud partnership."
+CubCloud runs the business. Joshua is their architecture partner. Writing *about* CubCloud uses third-person ("CubCloud runs production AI inference on a GPU stack I rebuilt"). Never "we at CubCloud." Never "our CubCloud partnership."
 
 ### "What about Jeff Emanuel's work?"
-Always cite. Tools built by Jeff: NTM, Agent Mail, beads (bd/bv/br), CASS. Josh *uses* them, doesn't own them. Any copy that implies otherwise is a hard reject.
+Always cite. Tools built by Jeff: NTM, Agent Mail, beads (bd/bv/br), CASS. Joshua *uses* them, doesn't own them. Any copy that implies otherwise is a hard reject.
 
 ### "What about Meadows?"
-Cite her. "Meadows' 12 leverage points," "per Meadows' Thinking in Systems," "the Meadows iceberg." Never claim the framework is Josh's.
+Cite her. "Meadows' 12 leverage points," "per Meadows' Thinking in Systems," "the Meadows iceberg." Never claim the framework is Joshua's.
 
 ### "Singular vs. plural when I have a partner?"
 When a build needs a partner (e.g. Door 3 retainer w/ a 24/7 ops shop), name them as a **named layer**, not as "the team." Example right: "I partner with an ops shop I trust and bring them in as a named layer." Example wrong: "Our team provides 24/7 coverage."

@@ -29,7 +29,7 @@ notes: |
   Reference for all post-booking and first-touch emails.
 ---
 
-Subject: You're booked — Peel session with Josh, [date] [time]
+Subject: You're booked — Peel session with Joshua, [date] [time]
 
 ---
 
@@ -48,7 +48,7 @@ The Peel is $0. If what you describe is wirable, I'll tell you what Discovery & 
 
 See you [date].
 
-— Josh
+— Joshua
 
 ---
 

@@ -46,7 +46,7 @@ Each stage has a dominant **Meadows iceberg level** the reader is processing. Vo
 
 **Iceberg level:** Patterns → Structures
 
-**Mental-model shift goal:** From "is Josh legit?" → "Josh has shipped the receipts and names his limits"
+**Mental-model shift goal:** From "is Joshua legit?" → "Joshua has shipped the receipts and names his limits"
 
 **Surface × register:**
 
@@ -83,9 +83,9 @@ Each stage has a dominant **Meadows iceberg level** the reader is processing. Vo
 | /consult body | warm-operator + discovery-curious | Three doors with numbers, capacity discipline, what Peel produces |
 | /consult CTA | inviting + specific | Calendar link or "book now" — never "contact sales" |
 | pricing section | direct + specific | All three doors with $ and week ranges |
-| confirmation email | warm-operator + inviting | What to prep, what to expect, signoff `— Josh` |
+| confirmation email | warm-operator + inviting | What to prep, what to expect, signoff `— Joshua` |
 
-**What the reader needs to feel:** "Low-risk. Known bounds. Josh respects my time."
+**What the reader needs to feel:** "Low-risk. Known bounds. Joshua respects my time."
 
 **What to avoid:** Upsell in the Peel offer. Hidden fees. "Contact us for pricing."
 
@@ -121,7 +121,7 @@ Each stage has a dominant **Meadows iceberg level** the reader is processing. Vo
 
 ## Stage 5 — Advocacy
 
-**Reader state:** Shipped. Running. "I'd recommend Josh. Here's what he built."
+**Reader state:** Shipped. Running. "I'd recommend Joshua. Here's what he built."
 
 **Iceberg level:** Mental Models (permanently shifted)
 
@@ -138,7 +138,7 @@ Each stage has a dominant **Meadows iceberg level** the reader is processing. Vo
 
 **What the reader needs to feel:** "This ships, this compounds, and I'm in kaizen mode."
 
-**What to avoid:** Generic "how's it going" check-ins. Case studies that sound like Josh wrote them. Pressure to refer.
+**What to avoid:** Generic "how's it going" check-ins. Case studies that sound like Joshua wrote them. Pressure to refer.
 
 **Exemplar phrase:** *"Operations run themselves. We know exactly how to improve the rest."*
 

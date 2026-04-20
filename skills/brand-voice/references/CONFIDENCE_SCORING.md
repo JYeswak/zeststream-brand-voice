@@ -12,7 +12,7 @@ Every major section of `voice.yaml` and every entry in `capabilities-ground-trut
 |-------|----------|--------|
 | **High** | 3+ corroborating sources (docs / benchmarks / client-confirmed) OR direct measurement with reproducible method | Use verbatim. Safe to promote to exemplars. |
 | **Medium** | 1–2 sources OR inferred from strong pattern (e.g. repeated phrasing across 2 artifacts) | Use but flag with `confidence: medium` in the entry. Re-verify before using in high-stakes surfaces (proposals, case studies). |
-| **Low** | Single source, inferred-only, or conflicting data | Do NOT ship in user-visible copy without Josh review. File as an `OPEN_QUESTIONS.md` entry. |
+| **Low** | Single source, inferred-only, or conflicting data | Do NOT ship in user-visible copy without Joshua review. File as an `OPEN_QUESTIONS.md` entry. |
 
 ---
 
@@ -20,7 +20,7 @@ Every major section of `voice.yaml` and every entry in `capabilities-ground-trut
 
 Every block in `voice.yaml` implicitly carries confidence. Explicit annotations live in trailing comments. Examples:
 
-- `canon.primary` — **High** (Josh wrote it, used in production since session 10)
+- `canon.primary` — **High** (Joshua wrote it, used in production since session 10)
 - `banned_words` (consolidated list) — **High** (derived from 3 source docs + session-10 extraction)
 - `banned_words` (new additions from trauma) — **Medium** until 48hr + 3 applications
 - `posture.voice: "first-person singular"` — **High** (explicit in `capabilities-brief.md`)
@@ -41,7 +41,7 @@ Each entry's `source.type` implies a confidence:
 | `timestamped_log` | High (if log location verifiable) |
 | `client_authorized` | High |
 | `vendor_public_pricing` | Medium (vendor pricing changes; re-verify per stale_after_days) |
-| `commitment` | Medium (Josh's stated capability; receipt may still need landing) |
+| `commitment` | Medium (Joshua's stated capability; receipt may still need landing) |
 
 **Rule:** Medium-confidence entries should have `stale_after_days` set lower than High-confidence entries. Stale warnings escalate to blocks if aged >90 days without refresh.
 
@@ -55,7 +55,7 @@ When the scorer encounters a factual claim, it checks `capabilities-ground-truth
 
 1. If match found with `confidence: high` → grounded, ship-eligible
 2. If match found with `confidence: medium` → grounded, but add `claims_medium_confidence[]` to `ScoreResult` and annotate in the rejection if any other dim fails
-3. If match found with `confidence: low` → block with message "Claim X matched a low-confidence entry. Please have Josh re-verify before ship."
+3. If match found with `confidence: low` → block with message "Claim X matched a low-confidence entry. Please have Joshua re-verify before ship."
 4. If no match → block (same as before)
 
 ### Layer 4 (LLM Rubric) integration
@@ -86,7 +86,7 @@ Low-confidence entries and `OPEN_QUESTIONS.md` entries are two views of the same
 - **Low confidence** = we have *some* evidence but it's insufficient
 - **Open question** = we have *conflicting or missing* evidence and need a decision
 
-When a Low-confidence entry sits for >30 days without evidence escalation, auto-promote it to an `OPEN_QUESTIONS.md` entry (Q-xxx) so Josh sees it as a pending decision, not a quiet risk.
+When a Low-confidence entry sits for >30 days without evidence escalation, auto-promote it to an `OPEN_QUESTIONS.md` entry (Q-xxx) so Joshua sees it as a pending decision, not a quiet risk.
 
 ---
 

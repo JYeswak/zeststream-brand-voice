@@ -21,7 +21,7 @@ It enforces three things at the moment of writing:
 
 Check `brands/` for the brand slug the user or repo references.
 
-- **zeststream.ai / ZestStream / Josh Nowak / The Gap** → `brands/zeststream/`
+- **zeststream.ai / ZestStream / Joshua Nowak / The Gap** → `brands/zeststream/`
 - **Client brands** → register under `brands/<slug>/` using `brands/_template/` as the starting shape.
 
 If no brand config exists yet, run the **discover** flow in `references/DISCOVER.md` before writing any new copy. Meadows principle 1: *"Get the beat of the system before you disturb it."*
@@ -61,7 +61,7 @@ Each layer is independent. A claim that passes regex but fails grounding is stil
 5. **Trademark rendering wrong** → reject. First use per asset: `The Yuzu Method ®`. Motto: `Peel. Press. Pour.™`. Exactly.
 6. **Testimonial without named client, metric, or repo** → reject. "Receipts over testimonials" is the floor.
 7. **Enemy framing or doomer framing about AI** → reject. Partnership frame only.
-8. **Jeff-Emanuel's work attributed to Josh** (NTM, Agent Mail, beads, CASS) → reject. Cite Jeff where used.
+8. **Jeff-Emanuel's work attributed to Joshua** (NTM, Agent Mail, beads, CASS) → reject. Cite Jeff where used.
 
 ## The four tests (steal from jgerton, applied per draft)
 
@@ -69,12 +69,12 @@ Before shipping any sentence, it must pass:
 
 - **Swap test** — can a competitor's name swap in without the sentence breaking? If yes, it's too generic. Rewrite.
 - **Specificity test** — does it name actual tools, numbers, benchmarks, or a real client? If no, rewrite.
-- **Differentiation test** — does the claim tie to something only Josh/this-brand does? If no, cut it.
+- **Differentiation test** — does the claim tie to something only Joshua/this-brand does? If no, cut it.
 - **Business-type test** — does the register match the audience (operator, candidate, customer, general)? If no, re-register from `TONE_MATRIX.md`.
 
 ## Three moves (mandatory on every conversion surface)
 
-1. **Name a specific person** — Josh (this brand) or the named operator in client brands. Never a faceless "we."
+1. **Name a specific person** — Joshua (this brand) or the named operator in client brands. Never a faceless "we."
 2. **Show a receipt** — a number, a repo link, a benchmark, a workflow count, a SHA, a timestamped log line.
 3. **Invite, don't pitch** — end with a low-friction invitation (Peel session, map call, DM link). Never "Contact sales."
 

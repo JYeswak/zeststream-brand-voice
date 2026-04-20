@@ -69,11 +69,11 @@ Read before shipping copy. If a draft matches one of these, stop and fix.
 
 ## 7. Pre-empting reviewer taste with AI judgment
 
-**Symptom:** "The LLM said it was on-brand, so we're done. Don't need Josh to look."
+**Symptom:** "The LLM said it was on-brand, so we're done. Don't need Joshua to look."
 
-**Why it fails:** CubCloud Axiom 5 — "Taste is human & non-negotiable." AI proposes; Josh disposes. The rubric is a proxy, not a replacement.
+**Why it fails:** CubCloud Axiom 5 — "Taste is human & non-negotiable." AI proposes; Joshua disposes. The rubric is a proxy, not a replacement.
 
-**Fix:** the scorer never auto-ships to prod on conversion routes. It ships to a staging gate. Josh's approval or rejection is the final input. The rubric shortens the list of things Josh has to review, not replace him.
+**Fix:** the scorer never auto-ships to prod on conversion routes. It ships to a staging gate. Joshua's approval or rejection is the final input. The rubric shortens the list of things Joshua has to review, not replace him.
 
 ---
 
@@ -145,7 +145,7 @@ For each failure above, the answering mechanism:
 | No escalation | Hard composite + dim floors |
 | Poisoned exemplars | 48hr aging + weekly quarantine |
 | Events-layer-only fixes | Trauma → rule promotion at 3× |
-| Pre-empting reviewer | Stage to Josh, never auto-ship conversion routes |
+| Pre-empting reviewer | Stage to Joshua, never auto-ship conversion routes |
 | Skipped grounding | Hard block on `claims_ungrounded` |
 | One-shot coverage | Wave-A probe on all routes every tick |
 | One-shot prompts | Persistent skill + exemplars + traumas |

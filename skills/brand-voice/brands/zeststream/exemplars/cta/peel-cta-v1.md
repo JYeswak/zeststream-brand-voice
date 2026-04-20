@@ -35,4 +35,4 @@ You walk me through your system. I tell you what's wirable, what's not, and what
 
 No pitch at the end. If we're not a fit, I tell you.
 
-[Book with Josh →]
+[Book with Joshua →]

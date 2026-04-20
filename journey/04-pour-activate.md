@@ -154,7 +154,7 @@ for hint, count in hint_counts.items():
         propose_rule(hint, count)  # creates a PR
 ```
 
-Josh (or whoever owns the brand) reviews the proposed rule, decides accept/reject. If accepted, `voice.yaml` updates and the rule takes effect immediately. If rejected, the hint is marked as a known false positive so it doesn't propose again.
+Joshua (or whoever owns the brand) reviews the proposed rule, decides accept/reject. If accepted, `voice.yaml` updates and the rule takes effect immediately. If rejected, the hint is marked as a known false positive so it doesn't propose again.
 
 This is the **B2 learning loop** activated: the system writes its own rules from its own scars. Meadows leverage #4, self-organization.
 

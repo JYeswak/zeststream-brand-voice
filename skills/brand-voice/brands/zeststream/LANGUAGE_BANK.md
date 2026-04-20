@@ -43,16 +43,16 @@ Use verbatim or adapt. Every phrase has a mental-model shift attached and a cont
 | Phrase | Mental-model shift | Use context |
 |--------|---------------------|-------------|
 | "Book a 20-minute Peel session. Free, specific, no pitch at the end." | From "discovery call = sales trap" → "Peel = $0 diagnostic" | All conversion CTAs |
-| "If you build it yourself from my map, we're done. Some clients stop here; I'm happy when they do." | From "consultants want to lock you in" → "Josh ships work you own" | /consult |
+| "If you build it yourself from my map, we're done. Some clients stop here; I'm happy when they do." | From "consultants want to lock you in" → "Joshua ships work you own" | /consult |
 | "Worth 15 minutes to see if the numbers apply to your stack?" | From "sales ask" → "numeric curiosity" | cold outreach / email |
 | "You own everything I build." | From "what I pay for, I own" → "no SaaS lock-in" | /consult, /work |
-| "Max 3 concurrent builds. Waitlist after." | From "is Josh available?" → "Josh has a queue and it's honest" | /consult |
+| "Max 3 concurrent builds. Waitlist after." | From "is Joshua available?" → "Josh has a queue and it's honest" | /consult |
 
 ## Tier 4 — resilience / personal story
 
 | Phrase | Mental-model shift | Use context |
 |--------|---------------------|-------------|
-| "14 years at ZIRKEL before the acquisition. Led technical operations at ElektraFi through end of 2025." | From "is Josh legit?" → "Josh has receipts from past operators' stacks" | /about |
+| "14 years at ZIRKEL before the acquisition. Led technical operations at ElektraFi through end of 2025." | From "is Joshua legit?" → "Josh has receipts from past operators' stacks" | /about |
 | "Left to run ZestStream full-time. One person, a GPU stack, and a growing library of working parts." | From "solo = small" → "solo = focused" | /about, / |
 | "I rebuilt CubCloud's 8-GPU inference stack from bare metal. 100+ containers, a 910× cache-hit improvement on a 2-line regex." | From "talk vs work" → "here's the flagship receipt" | /work/cubcloud, / |
 

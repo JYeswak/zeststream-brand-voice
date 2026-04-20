@@ -116,7 +116,7 @@ The scorer P0 and P1 gates are hard. P2 and P3 are passed through.
 
 ## Stale-source policy
 
-Entries with `stale_after_days` that have aged past the threshold emit a **warning** but don't block scoring. A weekly cron lists stale entries; Josh refreshes or retires them.
+Entries with `stale_after_days` that have aged past the threshold emit a **warning** but don't block scoring. A weekly cron lists stale entries; Joshua refreshes or retires them.
 
 Why not auto-block on staleness? Because SMB reality: benchmarks from 2 months ago are still truthful more often than not. Human judgment on refresh cadence > mechanical expiry.
 
@@ -126,7 +126,7 @@ Why not auto-block on staleness? Because SMB reality: benchmarks from 2 months a
 
 1. **Quote the span back.** `ScoreResult.claims_ungrounded` is a list of exact offending spans. Show each one.
 2. **Offer both paths.** "Add to `data/capabilities-ground-truth.yaml` with evidence, OR omit the claim and rewrite."
-3. **Never silently regenerate.** Regenerating without Josh (or the writer) making a truth call is how on-voice hallucination re-enters. The human owns the truth decision.
+3. **Never silently regenerate.** Regenerating without Joshua (or the writer) making a truth call is how on-voice hallucination re-enters. The human owns the truth decision.
 
 ---
 

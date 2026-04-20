@@ -29,9 +29,9 @@ notes: |
   Use as reference for any conversion-surface hero rewrite.
 ---
 
-# Stop giving consultants your time. Start giving Josh your system.
+# Stop giving consultants your time. Start giving Joshua your system.
 
-I'm Josh Nowak. I wire AI into businesses that already work — and leave them running.
+I'm Joshua Nowak. I wire AI into businesses that already work — and leave them running.
 
 Book a 20-minute **Peel session**. $0. Specific. No pitch at the end.
 

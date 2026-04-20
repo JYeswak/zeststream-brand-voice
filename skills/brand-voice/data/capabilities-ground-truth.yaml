@@ -18,8 +18,10 @@
 #   commitment — stated past-tense capability with supporting receipt
 
 # ============================================================================
-# WHO JOSH IS
+# WHO JOSHUA IS
 # ============================================================================
+
+entries:
 
 - id: joshua_identity_montana
   claim: "Solo operator based in Montana"
