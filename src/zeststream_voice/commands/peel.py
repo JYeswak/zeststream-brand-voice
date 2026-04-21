@@ -1950,6 +1950,52 @@ def _recover_corrupt_state(brand_dir: Path, exc: click.ClickException) -> PeelSt
 # ---------------------------------------------------------------------------
 
 
+def parse_only_blocks(spec: str | None) -> set[int] | None:
+    """Parse comma-separated block numbers with optional ranges.
+
+    "1,2"   -> {1, 2}
+    "3"     -> {3}
+    "1-4"   -> {1, 2, 3, 4}
+    "3,5-7" -> {3, 5, 6, 7}
+    None / "" -> None (meaning: run all blocks)
+
+    Raises click.BadParameter on malformed input or out-of-range [1, 9].
+    """
+    if spec is None or not spec.strip():
+        return None
+    result: set[int] = set()
+    for token in spec.split(","):
+        token = token.strip()
+        if not token:
+            continue
+        if "-" in token:
+            try:
+                lo_s, hi_s = token.split("-", 1)
+                lo, hi = int(lo_s), int(hi_s)
+            except ValueError as e:
+                raise click.BadParameter(
+                    f"--only-blocks range {token!r} must be 'N-M' integers"
+                ) from e
+            if lo > hi:
+                raise click.BadParameter(
+                    f"--only-blocks range {token!r}: {lo} > {hi}"
+                )
+            result.update(range(lo, hi + 1))
+        else:
+            try:
+                result.add(int(token))
+            except ValueError as e:
+                raise click.BadParameter(
+                    f"--only-blocks token {token!r} must be an integer"
+                ) from e
+    for n in result:
+        if not 1 <= n <= 9:
+            raise click.BadParameter(
+                f"--only-blocks contains {n}; must be in [1, 9]"
+            )
+    return result
+
+
 @click.command("peel", help="Run the conversational peel wizard for a brand.")
 @click.argument("slug")
 @click.option("--force", is_flag=True, help="Overwrite existing brand voice.yaml.")
@@ -1960,6 +2006,17 @@ def _recover_corrupt_state(brand_dir: Path, exc: click.ClickException) -> PeelSt
     type=int,
     default=None,
     help="Skip a single block for this run (preconditions still apply).",
+)
+@click.option(
+    "--only-blocks",
+    "only_blocks",
+    type=str,
+    default=None,
+    help=(
+        "Run only specified blocks (comma + range syntax): "
+        "'--only-blocks 3,5-7' runs blocks 3, 5, 6, 7 only. "
+        "Useful for testing or partial resume. Others are skipped silently."
+    ),
 )
 @click.option(
     "--brands-root",
@@ -1973,6 +2030,7 @@ def cli(
     force: bool,
     resume: bool,
     skip_block: int | None,
+    only_blocks: str | None,
     brands_root: Path | None,
 ) -> None:
     dirs = preflight(slug, force=force, resume=resume, brands_root=brands_root)
@@ -2000,103 +2058,62 @@ def cli(
             answers={},
         )
 
-    # Block 1 — IDENTITY
-    if 1 in state.blocks_completed:
-        click.echo("Block 1 already complete — skipping (use --force to redo).")
-    elif skip_block == 1:
-        click.echo("Skipping Block 1 (--skip-block). WARN: structural block.")
-    else:
-        state.answers["1"] = block_1_identity(state)
-        state.blocks_completed.append(1)
-        state.current_block = 2
-        save_state(dirs.brand_dir, state)
+    only_set = parse_only_blocks(only_blocks)
 
-    # Block 2 — CANON
-    if 2 in state.blocks_completed:
-        click.echo("Block 2 already complete — skipping.")
-    elif skip_block == 2:
-        click.echo("Skipping Block 2 (--skip-block).")
-    else:
-        state.answers["2"] = block_2_canon(state)
-        state.blocks_completed.append(2)
-        state.current_block = 3
-        save_state(dirs.brand_dir, state)
+    # Block runners: (number, label, callable(state, dirs) -> answer_dict).
+    # Callables wrap the per-block signature mismatch (some take brand_dir).
+    def _run_1(s: PeelState, d: BrandDirs) -> dict:
+        return block_1_identity(s)
 
-    # Block 3 — METHOD (optional)
-    if 3 in state.blocks_completed:
-        click.echo("Block 3 already complete — skipping.")
-    elif skip_block == 3:
-        click.echo("Skipping Block 3 (--skip-block). METHOD will be omitted.")
-    else:
-        state.answers["3"] = block_3_method(state)
-        state.blocks_completed.append(3)
-        state.current_block = 4
-        save_state(dirs.brand_dir, state)
+    def _run_2(s: PeelState, d: BrandDirs) -> dict:
+        return block_2_canon(s)
 
-    # Block 4 — RECEIPTS
-    if 4 in state.blocks_completed:
-        click.echo("Block 4 already complete — skipping.")
-    elif skip_block == 4:
-        click.echo("Skipping Block 4 (--skip-block).")
-    else:
-        state.answers["4"] = block_4_receipts(state, dirs.brand_dir)
-        state.blocks_completed.append(4)
-        state.current_block = 5
-        save_state(dirs.brand_dir, state)
+    def _run_3(s: PeelState, d: BrandDirs) -> dict:
+        return block_3_method(s)
 
-    # Block 5 — BANS
-    if 5 in state.blocks_completed:
-        click.echo("Block 5 already complete — skipping.")
-    elif skip_block == 5:
-        click.echo("Skipping Block 5 (--skip-block).")
-    else:
-        state.answers["5"] = block_5_bans(state)
-        state.blocks_completed.append(5)
-        state.current_block = 6
-        save_state(dirs.brand_dir, state)
+    def _run_4(s: PeelState, d: BrandDirs) -> dict:
+        return block_4_receipts(s, d.brand_dir)
 
-    # Block 6 — WE_ARE / WE_ARE_NOT
-    if 6 in state.blocks_completed:
-        click.echo("Block 6 already complete — skipping.")
-    elif skip_block == 6:
-        click.echo("Skipping Block 6 (--skip-block).")
-    else:
-        state.answers["6"] = block_6_we_are(state, dirs.brand_dir)
-        state.blocks_completed.append(6)
-        state.current_block = 7
-        save_state(dirs.brand_dir, state)
+    def _run_5(s: PeelState, d: BrandDirs) -> dict:
+        return block_5_bans(s)
 
-    # Block 7 — OFFER + PRICING
-    if 7 in state.blocks_completed:
-        click.echo("Block 7 already complete — skipping.")
-    elif skip_block == 7:
-        click.echo("Skipping Block 7 (--skip-block).")
-    else:
-        state.answers["7"] = block_7_offer_pricing(state, dirs.brand_dir)
-        state.blocks_completed.append(7)
-        state.current_block = 8
-        save_state(dirs.brand_dir, state)
+    def _run_6(s: PeelState, d: BrandDirs) -> dict:
+        return block_6_we_are(s, d.brand_dir)
 
-    # Block 8 — SITUATION PLAYBOOKS
-    if 8 in state.blocks_completed:
-        click.echo("Block 8 already complete — skipping.")
-    elif skip_block == 8:
-        click.echo("Skipping Block 8 (--skip-block).")
-    else:
-        state.answers["8"] = block_8_playbooks(state)
-        state.blocks_completed.append(8)
-        state.current_block = 9
-        save_state(dirs.brand_dir, state)
+    def _run_7(s: PeelState, d: BrandDirs) -> dict:
+        return block_7_offer_pricing(s, d.brand_dir)
 
-    # Block 9 — EXEMPLARS SEED
-    if 9 in state.blocks_completed:
-        click.echo("Block 9 already complete — skipping.")
-    elif skip_block == 9:
-        click.echo("Skipping Block 9 (--skip-block).")
-    else:
-        state.answers["9"] = block_9_exemplars(state, dirs.brand_dir)
-        state.blocks_completed.append(9)
-        state.current_block = 10
+    def _run_8(s: PeelState, d: BrandDirs) -> dict:
+        return block_8_playbooks(s)
+
+    def _run_9(s: PeelState, d: BrandDirs) -> dict:
+        return block_9_exemplars(s, d.brand_dir)
+
+    runners = [
+        (1, "IDENTITY", _run_1),
+        (2, "CANON", _run_2),
+        (3, "METHOD", _run_3),
+        (4, "RECEIPTS", _run_4),
+        (5, "BANS", _run_5),
+        (6, "WE_ARE / WE_ARE_NOT", _run_6),
+        (7, "OFFER + PRICING", _run_7),
+        (8, "SITUATION PLAYBOOKS", _run_8),
+        (9, "EXEMPLARS SEED", _run_9),
+    ]
+
+    for n, label, runner in runners:
+        if n in state.blocks_completed:
+            click.echo(f"Block {n} already complete — skipping.")
+            continue
+        if only_set is not None and n not in only_set:
+            # --only-blocks silently skips excluded blocks.
+            continue
+        if skip_block == n:
+            click.echo(f"Skipping Block {n} {label} (--skip-block).")
+            continue
+        state.answers[str(n)] = runner(state, dirs)
+        state.blocks_completed.append(n)
+        state.current_block = n + 1
         save_state(dirs.brand_dir, state)
 
     # Compose voice.yaml + silent-failure guard

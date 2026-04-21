@@ -68,7 +68,11 @@ def _run(brands_root: Path, block_6_inputs: list[str]) -> tuple[int, str, Path]:
     piped = "\n".join(_PRELUDE + _block_4_inputs() + block_6_inputs) + "\n"
     result = runner.invoke(
         peel_cmd,
-        ["acme-demo", "--brands-root", str(brands_root)],
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--only-blocks", "1,2,3,4,6",
+        ],
         input=piped,
         catch_exceptions=False,
     )

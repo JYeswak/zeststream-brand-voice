@@ -79,7 +79,11 @@ def _run_wizard(brands_root: Path, block_4_inputs: list[str]) -> tuple[int, str,
     piped = "\n".join(_PRELUDE + block_4_inputs + _BLOCK_6_SUFFIX) + "\n"
     result = runner.invoke(
         peel_cmd,
-        ["acme-demo", "--brands-root", str(brands_root)],
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--only-blocks", "1,2,3,4,6",
+        ],
         input=piped,
         catch_exceptions=False,
     )

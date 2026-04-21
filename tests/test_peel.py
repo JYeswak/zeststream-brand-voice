@@ -332,15 +332,17 @@ def test_block1_and_block2_collect_required(brands_root: Path):
     runner = CliRunner()
     result = runner.invoke(
         peel_cmd,
-        ["acme-demo", "--brands-root", str(brands_root)],
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            # PIPED_ANSWERS feeds blocks 1,2,3,4,6,8,9; 5 and 7 have no inputs
+            # so we scope the run to what's fed.
+            "--only-blocks", "1,2,3,4,6,8,9",
+        ],
         input=PIPED_ANSWERS + "\n",
     )
     assert result.exit_code == 0, result.output
-    # Block 3 is real now (Q3.0=n path exercised — prints omission notice, no stub).
-    # Blocks 8+9 now real (Wave G2b). Stubs remain for 5, 7.
-    for n in (5, 7):
-        assert f"[BLOCK {n}" in result.output, f"block {n} stub missing"
-    # Checkpoint confirmations
+    # Checkpoint confirmations — blocks that actually ran.
     assert "IDENTITY locked" in result.output
     assert "CANON:" in result.output
     assert "RECEIPTS locked" in result.output
@@ -351,7 +353,11 @@ def test_yaml_output_is_safe_loadable(brands_root: Path):
     runner = CliRunner()
     result = runner.invoke(
         peel_cmd,
-        ["acme-demo", "--brands-root", str(brands_root)],
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--only-blocks", "1,2,3,4,6,8,9",
+        ],
         input=PIPED_ANSWERS + "\n",
     )
     assert result.exit_code == 0, result.output
@@ -441,7 +447,12 @@ def test_resume_on_corrupt_state_offers_discard(brands_root: Path):
     runner = CliRunner()
     result = runner.invoke(
         peel_cmd,
-        ["acme-demo", "--brands-root", str(brands_root), "--resume"],
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--resume",
+            "--only-blocks", "1,2,3,4,6,8,9",
+        ],
         input=piped,
     )
     assert result.exit_code == 0, result.output
@@ -479,6 +490,96 @@ def test_resume_on_corrupt_state_abort_exits_nonzero(brands_root: Path):
     assert (brand_dir / ".peel-state.json").read_text(encoding="utf-8") == (
         "{ bad json"
     )
+
+
+# ---------------------------------------------------------------------------
+# --only-blocks flag (Wave G3)
+# ---------------------------------------------------------------------------
+
+
+def test_parse_only_blocks_syntax():
+    """Unit coverage of the parser — lists, ranges, mixed, None, errors."""
+    from zeststream_voice.commands.peel import parse_only_blocks
+
+    assert parse_only_blocks(None) is None
+    assert parse_only_blocks("") is None
+    assert parse_only_blocks("  ") is None
+    assert parse_only_blocks("1,2") == {1, 2}
+    assert parse_only_blocks("3") == {3}
+    assert parse_only_blocks("1-4") == {1, 2, 3, 4}
+    assert parse_only_blocks("3,5-7") == {3, 5, 6, 7}
+    assert parse_only_blocks(" 1 , 2 , 3 ") == {1, 2, 3}
+
+    with pytest.raises(click.BadParameter):
+        parse_only_blocks("10")  # out of range
+    with pytest.raises(click.BadParameter):
+        parse_only_blocks("0")  # out of range
+    with pytest.raises(click.BadParameter):
+        parse_only_blocks("abc")
+    with pytest.raises(click.BadParameter):
+        parse_only_blocks("5-3")  # inverted range
+
+
+def test_only_blocks_1_2_skips_rest(brands_root: Path):
+    """`--only-blocks 1,2` should run exactly blocks 1 and 2 with no later
+    prompts firing. Feed just the minimum stdin for blocks 1+2.
+    """
+    # Only blocks 1+2 inputs (first 11 lines of PIPED_ANSWERS).
+    piped = "\n".join(
+        [
+            "Acme Demo",
+            "Alex Example",
+            "",
+            "acme-demo.com",
+            "solo",
+            "n",
+            "",
+            "I ship things that prove themselves.",
+            "",
+            "",
+            "n",
+        ]
+    ) + "\n"
+    runner = CliRunner()
+    result = runner.invoke(
+        peel_cmd,
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--only-blocks", "1,2",
+        ],
+        input=piped,
+    )
+    assert result.exit_code == 0, result.output
+    assert "IDENTITY locked" in result.output
+    assert "CANON:" in result.output
+    # Later blocks did not prompt.
+    assert "Q3.0" not in result.output
+    assert "BLOCK 4" not in result.output
+    assert "BLOCK 5" not in result.output
+
+
+def test_only_blocks_range_syntax(brands_root: Path):
+    """`--only-blocks 1-2` should behave the same as '1,2'."""
+    piped = "\n".join(
+        [
+            "Acme Demo", "Alex Example", "", "acme-demo.com", "solo", "n", "",
+            "I ship things that prove themselves.", "", "", "n",
+        ]
+    ) + "\n"
+    runner = CliRunner()
+    result = runner.invoke(
+        peel_cmd,
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--only-blocks", "1-2",
+        ],
+        input=piped,
+    )
+    assert result.exit_code == 0, result.output
+    assert "CANON:" in result.output
+    assert "Q3.0" not in result.output
 
 
 # ---------------------------------------------------------------------------

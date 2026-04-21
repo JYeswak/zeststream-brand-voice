@@ -122,7 +122,11 @@ def _run_cli(brands_root: Path, block5_lines: list[str]):
     runner = CliRunner()
     return runner.invoke(
         peel_cmd,
-        ["acme-demo", "--brands-root", str(brands_root)],
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--only-blocks", "1-6",
+        ],
         input=_piped_block_5(block5_lines),
     )
 
@@ -160,19 +164,22 @@ def test_block5_slop_extraction_autoban_all(brands_root: Path):
 
 
 def test_block5_empty_attribution_omits_key(brands_root: Path):
-    """Q5.5 blank → payload has no attribution_rules key at all."""
-    from zeststream_voice.commands.peel import PeelState
-    # Not going through CLI — just inspect the state after a minimal run.
+    """Q5.5 blank → payload has no attribution_rules key at all.
+
+    Uses purely generic paste (no default-slop candidates) so Q5.2 is
+    skipped entirely; banned_words must end up empty.
+    """
+    from zeststream_voice.commands.peel import PeelState  # noqa: F401
     block5 = [
         "Generic marketing copy one.",
         "Generic marketing copy two.",
         "Generic marketing copy three.",
         "",
-        "none",  # Q5.2 none
-        "",      # Q5.3
-        "",      # Q5.4
+        # Q5.2 skipped (no candidates in generic paste).
+        "",      # Q5.3 no custom bans
+        "",      # Q5.4 no phrases
         "",      # Q5.5 no attributions
-        "",      # Q5.7
+        "",      # Q5.7 no never-appear
     ]
     result = _run_cli(brands_root, block5)
     assert result.exit_code == 0, result.output
@@ -191,12 +198,13 @@ def test_block5_empty_attribution_omits_key(brands_root: Path):
 
 def test_block5_attribution_rules_populated(brands_root: Path):
     """Q5.5 with 'tool — author' → attribution_rules entry with regex."""
+    # Paste contains real slop so Q5.2 fires (and 'none' is consumed correctly).
     block5 = [
-        "Nauseating copy line one.",
-        "Nauseating copy line two.",
-        "Nauseating copy line three.",
+        "Our enterprise platform leverages cutting-edge paradigms.",
+        "We streamline your workflow with innovative solutions.",
+        "Transform your business with our seamless platform today.",
         "",
-        "none",               # Q5.2 none
+        "none",               # Q5.2 none (skip auto-extracted bans)
         "",                   # Q5.3 no custom
         "",                   # Q5.4 no phrases
         "claude — anthropic, grok — xai",  # Q5.5 two attributions
@@ -247,15 +255,16 @@ def test_block5_banned_words_includes_custom(brands_root: Path):
 
 def test_block5_never_appear_lands_in_banned_phrases(brands_root: Path):
     """Q5.7 trademarked/NDA phrases merge into banned_phrases."""
+    # Paste contains real slop so Q5.2 fires (and 'none' is consumed correctly).
     block5 = [
-        "Competitor Inc ships a thing.",
-        "Another line about nothing.",
-        "Third line to satisfy min.",
+        "Our enterprise platform leverages cutting-edge paradigms.",
+        "We streamline your workflow with innovative solutions.",
+        "Transform your business with our seamless platform today.",
         "",
-        "none",
-        "",
-        "not just X but Y, in today's world",   # Q5.4
-        "",
+        "none",                                  # Q5.2
+        "",                                      # Q5.3
+        "not just X but Y, in today's world",    # Q5.4
+        "",                                      # Q5.5
         "SecretClientCorp, DeprecatedProductName",  # Q5.7
     ]
     result = _run_cli(brands_root, block5)

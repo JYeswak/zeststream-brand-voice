@@ -85,7 +85,11 @@ def _run_with_block3(brands_root: Path, block3_inputs: list[str]):
     runner = CliRunner()
     return runner.invoke(
         peel_cmd,
-        ["acme-demo", "--brands-root", str(brands_root)],
+        [
+            "acme-demo",
+            "--brands-root", str(brands_root),
+            "--only-blocks", "1,2,3,4,6",
+        ],
         input=piped,
     )
 
