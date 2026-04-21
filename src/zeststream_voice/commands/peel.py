@@ -2,7 +2,8 @@
 peel flow and emits voice.yaml + supporting artifacts.
 
 Authoritative spec:
-  /Users/josh/Developer/zesttube/.planning/brand-voice-cli/03-peel-wizard-spec.md
+  /Users/josh/Developer/zesttube/.planning/brand-voice-cli/05-unified-spec.md
+  (supersedes 03-peel-wizard-spec.md; doc 03 retained as archaeology)
 
 v0.5 scope:
   - pre-flight checks (7 items per spec)
@@ -11,6 +12,12 @@ v0.5 scope:
   - Blocks 3-9       — stubs that print "not yet implemented, skipping"
   - merge_to_voice_yaml writes voice.yaml and yaml.safe_load-validates it
     (silent-failure guard, session-14 trauma class)
+  - Destructive writes are backed up first (P0-1 gate); copytree is atomic
+    via tmp+rename (P1-3); corrupt --resume state is recoverable (P0-2).
+
+Tokenization: word count uses a word-boundary regex (see ``_WORD_RE``) so
+that hyphens and apostrophes bind words together. This matches Vale-default
+word-boundary behavior used by downstream surface_sentence_caps scoring.
 
 Deterministic: no LLM calls, no network, no anthropic/openai imports.
 """
@@ -24,7 +31,6 @@ import shutil
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
 
 import click
 import yaml
@@ -35,7 +41,14 @@ import yaml
 # ---------------------------------------------------------------------------
 
 SLUG_RE = re.compile(r"^[a-z][a-z0-9-]{2,31}$")
-DOMAIN_RE = re.compile(r"^[a-z0-9.-]+\.[a-z]{2,}$")
+# Reject empty labels, leading/trailing dashes, and consecutive dots.
+# Each label: starts+ends with alnum, may contain hyphens in the middle.
+# TLD: 2+ alpha chars.
+DOMAIN_RE = re.compile(
+    r"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$"
+)
+# Vale-default-ish tokenizer: words bind via ' and -; no empty tokens.
+_WORD_RE = re.compile(r"\b\w+(?:['-]\w+)*\b")
 STATE_FILENAME = ".peel-state.json"
 
 
@@ -54,7 +67,7 @@ class PeelState:
     last_updated: str = ""
     blocks_completed: list[int] = field(default_factory=list)
     current_block: int = 1
-    answers: dict = field(default_factory=dict)
+    answers: dict[str, dict] = field(default_factory=dict)
 
     def to_json(self) -> str:
         return json.dumps(asdict(self), indent=2)
@@ -92,8 +105,16 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def load_state(brand_dir: Path) -> Optional[PeelState]:
-    """Read .peel-state.json if it exists. Returns None if missing."""
+def _epoch_suffix() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def load_state(brand_dir: Path) -> PeelState | None:
+    """Read .peel-state.json if it exists. Returns None if missing.
+
+    Raises click.ClickException on JSONDecodeError so the CLI layer can
+    offer the three-way (resume / abort / discard) recovery prompt.
+    """
     state_file = brand_dir / STATE_FILENAME
     if not state_file.exists():
         return None
@@ -116,11 +137,29 @@ def save_state(brand_dir: Path, state: PeelState) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Backup helpers (P0-1 gate: never destroy load-bearing state silently)
+# ---------------------------------------------------------------------------
+
+
+def _backup_file(path: Path, *, suffix: str = "bak") -> Path | None:
+    """Copy `path` to `path.<existing-suffix>.<suffix>.<epoch>`. Returns the
+    backup path, or None if source did not exist. Uses `shutil.copy2` so
+    mtime is preserved. Caller is expected to announce the backup path.
+    """
+    if not path.exists():
+        return None
+    epoch = _epoch_suffix()
+    backup = path.with_name(f"{path.name}.{suffix}.{epoch}")
+    shutil.copy2(path, backup)
+    return backup
+
+
+# ---------------------------------------------------------------------------
 # Pre-flight
 # ---------------------------------------------------------------------------
 
 
-def _find_brands_root(search_from: Optional[Path] = None) -> Path:
+def _find_brands_root(search_from: Path | None = None) -> Path:
     """Walk up looking for skills/brand-voice/brands/. Fail clearly if absent."""
     start = (search_from or Path.cwd()).resolve()
     for parent in [start, *start.parents]:
@@ -133,16 +172,42 @@ def _find_brands_root(search_from: Optional[Path] = None) -> Path:
     )
 
 
+def _atomic_copytree(src: Path, dst: Path) -> None:
+    """Copy `src` tree to `dst` atomically: stage at `dst.tmp`, rename on
+    success, cleanup tmp on failure. Prevents half-bootstrapped brand dirs
+    from surviving a crashed preflight (P1-3).
+    """
+    if dst.exists():
+        raise click.ClickException(
+            f"atomic copytree refused: {dst} already exists"
+        )
+    staging = dst.with_name(dst.name + ".tmp")
+    if staging.exists():
+        shutil.rmtree(staging)
+    try:
+        shutil.copytree(src, staging)
+        os.rename(staging, dst)
+    except Exception:
+        if staging.exists():
+            shutil.rmtree(staging, ignore_errors=True)
+        raise
+
+
 def preflight(
     slug: str,
     force: bool = False,
     resume: bool = False,
     *,
-    brands_root: Optional[Path] = None,
+    brands_root: Path | None = None,
 ) -> BrandDirs:
     """Run the 7 pre-flight checks from the spec. Returns resolved dirs.
 
     Raises click.ClickException (exit 2 via click) on any failure.
+
+    When `force=True` and an existing populated voice.yaml is about to be
+    overwritten, the file is first copied to voice.yaml.bak.<epoch> so a
+    bad wizard run can be reverted. Same for .peel-state.json before
+    unlink. This closes the session-14 silent-failure class.
     """
     # 1. Slug format
     if not SLUG_RE.match(slug):
@@ -175,7 +240,7 @@ def preflight(
                     "no template and no fallback — cannot create brand skeleton"
                 )
             template_dir = fallback
-        shutil.copytree(template_dir, brand_dir)
+        _atomic_copytree(template_dir, brand_dir)
     else:
         if voice_yaml.exists() and voice_yaml.read_text(encoding="utf-8").strip():
             if not (force or resume):
@@ -184,6 +249,13 @@ def preflight(
                     "voice.yaml — pass --force to overwrite or --resume to "
                     "continue a prior run"
                 )
+            if force:
+                # P0-1: Back up the existing voice.yaml before any overwrite.
+                backup = _backup_file(voice_yaml)
+                if backup is not None:
+                    click.echo(
+                        f"backed up existing voice.yaml -> {backup}", err=True
+                    )
 
     # 3. Template present (already handled implicitly via is_fresh branch).
 
@@ -195,6 +267,13 @@ def preflight(
             "or --force to discard"
         )
     if existing_state and force:
+        # P0-1: Back up the state file before discard so a bad force run is
+        # not irrecoverable.
+        backup = _backup_file(state_file)
+        if backup is not None:
+            click.echo(
+                f"backed up existing peel state -> {backup}", err=True
+            )
         state_file.unlink()
 
     # 5. Writable check
@@ -226,18 +305,41 @@ def preflight(
 # ---------------------------------------------------------------------------
 
 
-def _ask(prompt: str, *, default: Optional[str] = None) -> str:
-    return click.prompt(prompt, default=default, type=str, show_default=default is not None).strip()
+def _clean(text: str) -> str:
+    """Strip surrounding whitespace from a caller-supplied prompt result.
+
+    Intentionally narrow: defaults are assumed pre-cleaned (see P2-7). The
+    helper exists so we never accidentally strip data that isn't ours.
+    """
+    return text.strip()
+
+
+def _ask(prompt: str, *, default: str | None = None) -> str:
+    """Prompt for a freeform string. Returns the stripped answer.
+
+    If `default` is provided it is shown in the prompt and accepted on
+    empty enter. Pass the rejected value as default on re-prompt so the
+    user can edit rather than retype (P1-1).
+    """
+    return _clean(
+        click.prompt(
+            prompt, default=default, type=str, show_default=default is not None
+        )
+    )
 
 
 def _ask_list(prompt: str) -> list[str]:
+    """Prompt for a comma-separated list. Empty input returns []."""
     raw = click.prompt(prompt, default="", show_default=False, type=str)
     if not raw.strip():
         return []
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
-def _ask_choice(prompt: str, choices: list[str], *, default: Optional[str] = None) -> str:
+def _ask_choice(
+    prompt: str, choices: list[str], *, default: str | None = None
+) -> str:
+    """Prompt for one of `choices` (case-insensitive). Returns lowercased."""
     return click.prompt(
         prompt,
         type=click.Choice(choices, case_sensitive=False),
@@ -247,6 +349,7 @@ def _ask_choice(prompt: str, choices: list[str], *, default: Optional[str] = Non
 
 
 def _ask_yn(prompt: str, *, default: bool = False) -> bool:
+    """Yes/no confirm. Returns bool."""
     return click.confirm(prompt, default=default)
 
 
@@ -268,12 +371,12 @@ def block_1_identity(state: PeelState) -> dict:
 
     q11 = _ask("Q1.1 Brand display name (what appears in logos, titles)?")
     while not q11 or len(q11) > 40:
-        click.echo("  must be non-empty and ≤40 chars")
-        q11 = _ask("Q1.1 Brand display name?")
+        click.echo("  must be non-empty and <=40 chars")
+        q11 = _ask("Q1.1 Brand display name?", default=q11 or None)
 
     q12 = _ask("Q1.2 Canonical operator name (full, as you want it on public copy)?")
     while not q12:
-        q12 = _ask("Q1.2 Operator name?")
+        q12 = _ask("Q1.2 Operator name?", default=q12 or None)
 
     q13 = _ask_list(
         f"Q1.3 Name variants that MUST be auto-rejected? Comma-separated "
@@ -284,8 +387,11 @@ def block_1_identity(state: PeelState) -> dict:
 
     q14 = _ask("Q1.4 Primary domain (no protocol, e.g. zeststream.ai)?")
     while not DOMAIN_RE.match(q14):
-        click.echo("  must match domain pattern (e.g. 'example.com')")
-        q14 = _ask("Q1.4 Primary domain?")
+        click.echo(
+            "  must match domain pattern (non-empty labels, no leading/"
+            "trailing dashes, TLD 2+ chars — e.g. 'example.com')"
+        )
+        q14 = _ask("Q1.4 Primary domain?", default=q14 or None)
 
     q15 = _ask_choice(
         "Q1.5 Is this a solo operator brand or a team brand? [solo/team]",
@@ -385,7 +491,13 @@ def block_1_identity(state: PeelState) -> dict:
 
 
 def _word_count(s: str) -> int:
-    return len([w for w in s.strip().split() if w])
+    """Count words using a Vale-compatible tokenizer (P1-4).
+
+    Hyphens and apostrophes bind words together so "state-of-the-art" is 1
+    word and "don't" is 1 word. Matches the tokenization used downstream
+    by rules/surface_sentence_caps.yaml.
+    """
+    return len(_WORD_RE.findall(s))
 
 
 def block_2_canon(state: PeelState) -> dict:
@@ -396,7 +508,7 @@ def block_2_canon(state: PeelState) -> dict:
     click.echo("=" * 60)
     click.echo(
         "The ONE verbatim line that appears on every top-level route.\n"
-        "≤18 words. Never paraphrased. Gives STEP-0 grep an exact target.\n"
+        "<=18 words. Never paraphrased. Gives STEP-0 grep an exact target.\n"
     )
 
     max_words = 18
@@ -404,18 +516,18 @@ def block_2_canon(state: PeelState) -> dict:
     while True:
         wc = _word_count(q21)
         if not q21 or wc == 0:
-            q21 = _ask("  must be non-empty")
+            q21 = _ask("  must be non-empty", default=q21 or None)
             continue
         if wc > max_words:
             click.echo(f"  too long ({wc} words, max {max_words}). Tighten it.")
-            q21 = _ask("Q2.1 Canon line?")
+            q21 = _ask("Q2.1 Canon line?", default=q21)
             continue
         if wc > 14:
             click.echo(f"  WARN: {wc} words — hero surface caps at 14 for punch.")
         break
 
     q22 = _ask_list(
-        "Q2.2 2–3 approved variants (opener variations allowed on /about etc)?"
+        "Q2.2 2-3 approved variants (opener variations allowed on /about etc)?"
     )
 
     q23 = _ask_choice(
@@ -466,9 +578,9 @@ BLOCK_NAMES = {
 }
 
 
-def block_stub(block_num: int, name: Optional[str] = None) -> dict:
+def block_stub(block_num: int) -> dict:
     """Print a 'not yet implemented' notice. Returns empty payload."""
-    label = name or BLOCK_NAMES.get(block_num, f"BLOCK {block_num}")
+    label = BLOCK_NAMES.get(block_num, f"BLOCK {block_num}")
     click.echo("")
     click.echo(
         f"[BLOCK {block_num} — {label}] — not yet implemented in v0.5, skipping"
@@ -538,6 +650,40 @@ def merge_to_voice_yaml(brand_dir: Path, state: PeelState) -> Path:
 
 
 # ---------------------------------------------------------------------------
+# Corrupt-state recovery (P0-2)
+# ---------------------------------------------------------------------------
+
+
+def _recover_corrupt_state(brand_dir: Path, exc: click.ClickException) -> PeelState | None:
+    """Prompt the user on corrupt .peel-state.json — resume/abort/discard.
+
+    Returns None (start fresh) if user picks 'discard'; re-raises on 'abort'.
+    'resume' is a no-op fallthrough that re-raises so the caller sees it as
+    unresumable — the state file is genuinely unreadable.
+    """
+    state_file = brand_dir / STATE_FILENAME
+    click.echo(str(exc), err=True)
+    choice = _ask_choice(
+        f"Existing peel state at {state_file} is corrupt. "
+        "Resume (retry read), abort (exit), or discard (start fresh)?",
+        ["resume", "abort", "discard"],
+        default="abort",
+    )
+    if choice == "discard":
+        # Back up the corrupt file before deleting so forensics is possible.
+        backup = _backup_file(state_file, suffix="corrupt")
+        if backup is not None:
+            click.echo(
+                f"backed up corrupt state -> {backup}", err=True
+            )
+        state_file.unlink(missing_ok=True)
+        return None
+    # resume and abort both surface the original exception — a corrupt file
+    # cannot be parsed, there's nothing to retry.
+    raise exc
+
+
+# ---------------------------------------------------------------------------
 # CLI entry
 # ---------------------------------------------------------------------------
 
@@ -564,8 +710,8 @@ def cli(
     slug: str,
     force: bool,
     resume: bool,
-    skip_block: Optional[int],
-    brands_root: Optional[Path],
+    skip_block: int | None,
+    brands_root: Path | None,
 ) -> None:
     dirs = preflight(slug, force=force, resume=resume, brands_root=brands_root)
 
@@ -575,8 +721,14 @@ def cli(
     click.echo("                SITUATION PLAYBOOKS, EXEMPLARS SEED")
     click.echo("")
 
-    # Load or init state
-    state = load_state(dirs.brand_dir) if resume else None
+    # Load or init state. On corrupt state, offer the three-way recovery
+    # prompt instead of crashing (P0-2).
+    state: PeelState | None = None
+    if resume:
+        try:
+            state = load_state(dirs.brand_dir)
+        except click.ClickException as exc:
+            state = _recover_corrupt_state(dirs.brand_dir, exc)
     if state is None:
         state = PeelState(
             slug=slug,
