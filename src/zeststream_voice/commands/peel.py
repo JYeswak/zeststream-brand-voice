@@ -1264,6 +1264,191 @@ def block_5_bans(state: PeelState) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Block 7 — OFFER + PRICING
+# ---------------------------------------------------------------------------
+
+
+def _write_private_pricing(
+    brand_dir: Path,
+    slug: str,
+    in_pocket_floor: str | None,
+    retainer_ceiling: str | None,
+) -> Path:
+    """Append private_pricing to capabilities-ground-truth.yaml.
+
+    Creates the file with a minimal structure if Block 4 was skipped.
+    Uses safe_load + merge + safe_dump — never string-append. Round-trip
+    guard catches silent-failure class (session-14).
+    """
+    gt_path = brand_dir / "data" / "capabilities-ground-truth.yaml"
+    gt_path.parent.mkdir(parents=True, exist_ok=True)
+
+    data: dict = {}
+    if gt_path.exists():
+        try:
+            loaded = yaml.safe_load(gt_path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                data = loaded
+        except yaml.YAMLError as e:
+            raise click.ClickException(
+                f"existing {gt_path} is not valid YAML: {e}"
+            ) from e
+    else:
+        data = {
+            "version": 1,
+            "last_updated": _now_iso(),
+            "brand": slug,
+            "receipts": {},
+        }
+
+    data.setdefault("version", 1)
+    data["last_updated"] = _now_iso()
+    data["private_pricing"] = {
+        "in_pocket_floor": in_pocket_floor,
+        "retainer_ceiling": retainer_ceiling,
+        "rule": (
+            "Never speak in-pocket floor in public copy. "
+            "Never quote retainer ceiling unscoped."
+        ),
+    }
+
+    tmp = gt_path.with_suffix(".yaml.tmp")
+    body = yaml.safe_dump(data, sort_keys=False, allow_unicode=True, width=100)
+    tmp.write_text(body, encoding="utf-8")
+    try:
+        yaml.safe_load(tmp.read_text(encoding="utf-8"))
+    except yaml.YAMLError as e:
+        tmp.unlink(missing_ok=True)
+        raise click.ClickException(
+            f"ground-truth.yaml did not round-trip: {e}"
+        ) from e
+    os.replace(tmp, gt_path)
+    return gt_path
+
+
+def block_7_offer_pricing(state: PeelState, brand_dir: Path) -> dict:
+    """Collect OFFER + PRICING. Public fragment → voice.yaml.offer; private
+    pricing → capabilities-ground-truth.yaml.private_pricing (sidecar).
+
+    Q7.1 = peel-only is the default & recommended doctrine.
+    Q7.5/Q7.6 are PRIVATE and never written to voice.yaml.
+    Q7.7 CTA is validated against surfaces.cta.sentence_max_words (default 5).
+    """
+    click.echo("")
+    click.echo("=" * 60)
+    click.echo("BLOCK 7 — OFFER + PRICING")
+    click.echo("=" * 60)
+    click.echo(
+        "Public commercial invitation. Peel-only pricing is the default — "
+        "publishing tiered prices pre-commits you to numbers before scope.\n"
+    )
+
+    q71 = _ask_choice(
+        "Q7.1 Pricing doctrine: [peel-only / public-tiers / hybrid]",
+        ["peel-only", "public-tiers", "hybrid"],
+        default="peel-only",
+    )
+    if q71 != "peel-only":
+        click.echo(
+            "  WARN: non-peel-only doctrine means published prices are "
+            "held to. Make sure scope is bounded."
+        )
+
+    q72 = _ask('Q7.2 Free on-ramp offer (e.g. "Free 20-min Peel session")?')
+    while not q72:
+        q72 = _ask("Q7.2 Free on-ramp offer?", default=q72 or None)
+
+    q73 = _ask(
+        'Q7.3 Low-commitment paid offer (e.g. "$500 Peel Report, 1 week, fixed scope")?'
+    )
+    while not q73:
+        q73 = _ask("Q7.3 Low-commitment paid offer?", default=q73 or None)
+
+    tiers: list[dict] = []
+    if q71 != "peel-only":
+        click.echo(
+            "Q7.4 List paid tiers. For each: name, price, duration, scope. "
+            "Leave tier name blank to finish."
+        )
+        while True:
+            t_name = _ask("  tier name? (blank to finish)", default="")
+            if not t_name:
+                break
+            t_price = _ask("    price?")
+            t_duration = _ask("    duration?")
+            t_scope = _ask("    scope?")
+            tiers.append({
+                "name": t_name, "price": t_price,
+                "duration": t_duration, "scope": t_scope,
+            })
+
+    click.echo("")
+    click.echo("PRIVATE pricing — NEVER written to voice.yaml, stored in ground-truth.")
+    q75 = _ask(
+        "Q7.5 In-pocket floor (lowest you'd take — never spoken)?",
+        default="",
+    ) or None
+    q76 = _ask(
+        "Q7.6 Retainer ceiling (highest engagement size)?",
+        default="",
+    ) or None
+    if not q75 or not q76:
+        click.echo(
+            "  WARN: private ceilings unset — workers have no rail against "
+            "accidental underquoting in public copy."
+        )
+
+    # Q7.7 CTA — validate against surfaces.cta.sentence_max_words if set.
+    cta_max = 5
+    surfaces_state = state.answers.get("surfaces")
+    if isinstance(surfaces_state, dict):
+        cta_cap = surfaces_state.get("cta", {}).get("sentence_max_words")
+        if isinstance(cta_cap, int) and cta_cap > 0:
+            cta_max = cta_cap
+
+    while True:
+        q77 = _ask("Q7.7 Primary CTA text on conversion surfaces?")
+        if not q77:
+            continue
+        wc = _word_count(q77)
+        if wc > cta_max:
+            click.echo(f"  CTA is {wc} words — max {cta_max}. Tighten it.")
+            continue
+        break
+
+    q78 = _ask(
+        'Q7.8 What do you REFUSE to price publicly? '
+        '(e.g. "We never quote retainer publicly.")'
+    )
+    while not q78:
+        q78 = _ask("Q7.8 Never-public pricing rule?", default=q78 or None)
+
+    gt_path = _write_private_pricing(brand_dir, state.slug, q75, q76)
+    click.echo(f"  private pricing written to {gt_path}")
+
+    payload = {
+        "offer": {
+            "doctrine": q71,
+            "free_onramp": {"label": q72, "cta": q77},
+            "paid_entry": {"label": q73, "price_public": q73},
+            "tiers": tiers,
+            "never_quote_publicly": q78,
+        }
+    }
+
+    click.echo("")
+    click.echo("OFFER locked:")
+    click.echo(f"  doctrine:     {q71}")
+    click.echo(f"  free on-ramp: {q72}")
+    click.echo(f"  paid entry:   {q73}")
+    click.echo(f"  CTA:          {q77}")
+    if tiers:
+        click.echo(f"  tiers:        {len(tiers)}")
+
+    return payload
+
+
+# ---------------------------------------------------------------------------
 # Block 8 / 9 shared helpers (banned-word scanning via scorer layer 1)
 # ---------------------------------------------------------------------------
 
@@ -1654,6 +1839,12 @@ def merge_to_voice_yaml(brand_dir: Path, state: PeelState) -> Path:
     if b3 and b3.get("method"):
         voice["method"] = b3["method"]
 
+    # Block 7 OFFER — inlined into voice.yaml.offer. Private pricing lives
+    # in the ground-truth sidecar (never in voice.yaml).
+    b7 = state.answers.get("7", {})
+    if b7 and b7.get("offer"):
+        voice["offer"] = b7["offer"]
+
     # Block 5 BANS — top-level lists inlined into voice.yaml so the Layer 1
     # scorer picks them up directly. attribution_rules only emitted if
     # Q5.5 produced at least one rule (absence is meaningful).
@@ -1875,9 +2066,16 @@ def cli(
         state.current_block = 7
         save_state(dirs.brand_dir, state)
 
-    # Block 7 — OFFER + PRICING (stub; owned by another worker)
-    if 7 not in state.blocks_completed and skip_block != 7:
-        block_stub(7)
+    # Block 7 — OFFER + PRICING
+    if 7 in state.blocks_completed:
+        click.echo("Block 7 already complete — skipping.")
+    elif skip_block == 7:
+        click.echo("Skipping Block 7 (--skip-block).")
+    else:
+        state.answers["7"] = block_7_offer_pricing(state, dirs.brand_dir)
+        state.blocks_completed.append(7)
+        state.current_block = 8
+        save_state(dirs.brand_dir, state)
 
     # Block 8 — SITUATION PLAYBOOKS
     if 8 in state.blocks_completed:
