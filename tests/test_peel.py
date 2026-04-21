@@ -281,6 +281,30 @@ _BLOCK_6_INPUTS = [
     "I rebuilt my stack in 2024. Now this.",                          # Q6.6 (4 sentences)
 ]
 
+# Block 8 inputs — exactly 5 playbooks (min), each 6 prompts: label, triggers,
+# on_brand, off_brand, rule, Q8.7 (always asked; 'y' below the minimum, 'n' at 5).
+_BLOCK_8_INPUTS = []
+for i in range(5):
+    _BLOCK_8_INPUTS += [
+        f"Situation {i}",                         # Q8.1
+        f"trigger {i}a, trigger {i}b",            # Q8.2
+        f"I only ship with receipts ({i}).",      # Q8.3 on-brand
+        f"Lazy copy number {i}.",                 # Q8.4 off-brand (no banned words by default)
+        f"Receipts beat vibes ({i}).",            # Q8.5 rule
+        "y" if i < 4 else "n",                    # Q8.7 continue? (n at 5th)
+    ]
+
+# Block 9 inputs — 3 exemplars (all 95+, body surface, default) + Q9.5='n' (no trauma).
+_BLOCK_9_INPUTS = []
+for i in range(3):
+    _BLOCK_9_INPUTS += [
+        # Q9.1 — 40+ chars sample, no banned-word hits.
+        f"This is exemplar number {i}. It ships specific receipts with names and dates.",
+        "body",                                   # Q9.2 surface
+        "95+",                                    # Q9.3 score band
+    ]
+_BLOCK_9_INPUTS.append("n")                       # Q9.5 no trauma
+
 
 PIPED_ANSWERS = "\n".join(
     [
@@ -298,6 +322,8 @@ PIPED_ANSWERS = "\n".join(
         "n",                               # Q3.0 no methodology → block 3 skipped
         *_BLOCK_4_INPUTS,                  # Block 4 RECEIPTS (real)
         *_BLOCK_6_INPUTS,                  # Block 6 WE_ARE (real)
+        *_BLOCK_8_INPUTS,                  # Block 8 PLAYBOOKS (real)
+        *_BLOCK_9_INPUTS,                  # Block 9 EXEMPLARS (real)
     ]
 )
 
@@ -311,8 +337,8 @@ def test_block1_and_block2_collect_required(brands_root: Path):
     )
     assert result.exit_code == 0, result.output
     # Block 3 is real now (Q3.0=n path exercised — prints omission notice, no stub).
-    # Stubs remain for 5, 7, 8, 9.
-    for n in (5, 7, 8, 9):
+    # Blocks 8+9 now real (Wave G2b). Stubs remain for 5, 7.
+    for n in (5, 7):
         assert f"[BLOCK {n}" in result.output, f"block {n} stub missing"
     # Checkpoint confirmations
     assert "IDENTITY locked" in result.output
