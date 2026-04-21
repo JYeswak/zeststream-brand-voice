@@ -44,7 +44,7 @@ from zeststream_voice.llm import (
     LLMClientError,
     build_voice_context,
     generate_with_voice_gate,
-    make_client,
+    get_llm_client,
 )
 from zeststream_voice.sdk import BrandVoiceEnforcer
 
@@ -194,7 +194,7 @@ def cli(
     )
 
     try:
-        client = make_client(model=model)
+        client = get_llm_client(model=model)
     except LLMClientError as exc:
         raise click.ClickException(str(exc)) from exc
 

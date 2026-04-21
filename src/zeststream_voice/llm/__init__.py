@@ -7,11 +7,13 @@ provider-agnostic.
 
 from zeststream_voice.llm.client import (
     ANTHROPIC_API_KEY_HELP,
+    MODEL_PREFIXES,
     AnthropicClient,
     LLMClient,
     LLMClientError,
     LLMResponse,
     default_model,
+    get_llm_client,
     make_client,
 )
 from zeststream_voice.llm.context import VoiceContext, build_voice_context
@@ -24,9 +26,11 @@ __all__ = [
     "LLMClient",
     "LLMClientError",
     "LLMResponse",
+    "MODEL_PREFIXES",
     "VoiceContext",
     "build_voice_context",
     "default_model",
     "generate_with_voice_gate",
+    "get_llm_client",
     "make_client",
 ]

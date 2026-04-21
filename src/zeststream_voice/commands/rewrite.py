@@ -201,7 +201,7 @@ def cli(
         from zeststream_voice.llm import (
             build_voice_context,
             generate_with_voice_gate,
-            make_client,
+            get_llm_client,
         )
     except ImportError as e:  # pragma: no cover
         raise click.ClickException(
@@ -248,7 +248,7 @@ def cli(
 
     # --- Build voice context + LLM client, then run the regen loop.
     try:
-        client = make_client(model=model)
+        client = get_llm_client(model=model)
     except Exception as e:
         raise click.ClickException(str(e)) from e
 

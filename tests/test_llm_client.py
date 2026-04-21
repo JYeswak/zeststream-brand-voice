@@ -60,11 +60,12 @@ def test_missing_api_key_raises_with_helpful_message(monkeypatch: pytest.MonkeyP
     assert ANTHROPIC_API_KEY_HELP.splitlines()[0] in str(excinfo.value)
 
 
-def test_make_client_rejects_unknown_provider(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ZV_LLM_PROVIDER", "openai")
+def test_make_client_rejects_unknown_model_prefix(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Post–Grok factory rework: routing is by model prefix, not ZV_LLM_PROVIDER."""
+    monkeypatch.delenv("ZV_LLM_PROVIDER", raising=False)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-key-for-test")
     with pytest.raises(LLMClientError):
-        make_client()
+        make_client(model="gpt-4")
 
 
 def test_build_voice_context_loads_voice_and_exemplars(zeststream_brand: Path) -> None:

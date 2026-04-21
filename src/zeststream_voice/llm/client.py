@@ -196,15 +196,85 @@ class AnthropicClient(LLMClient):
         )
 
 
-def make_client(model: Optional[str] = None, api_key: Optional[str] = None) -> LLMClient:
-    """Factory: return the configured default client.
+# ---------------------------------------------------------------------------
+# Provider registry + factory
+# ---------------------------------------------------------------------------
 
-    Currently returns ``AnthropicClient``. When other providers land, this
-    function reads a ``ZV_LLM_PROVIDER`` env var to pick between them.
+# Prefix → (provider name, env var that must be set). Classes are resolved
+# lazily so we don't import openai/anthropic at module load.
+MODEL_PREFIXES: dict[str, tuple[str, str]] = {
+    "claude": ("anthropic", "ANTHROPIC_API_KEY"),
+    "grok": ("grok", "XAI_API_KEY"),
+}
+
+
+def _resolve_client_class(provider: str):
+    """Return the LLMClient subclass for a provider name.
+
+    Lazy import so callers without a given extra installed still work for
+    other providers. Raises ``LLMClientError`` if the provider is unknown.
     """
-    provider = os.environ.get("ZV_LLM_PROVIDER", "anthropic").strip().lower()
     if provider == "anthropic":
-        return AnthropicClient(model=model, api_key=api_key)
+        return AnthropicClient
+    if provider == "grok":
+        try:
+            from zeststream_voice.llm.grok import GrokClient
+        except ImportError as exc:
+            raise LLMClientError(
+                "Grok provider requested but its module failed to import. "
+                "Install with: pip install 'zeststream-voice[grok]'"
+            ) from exc
+        return GrokClient
     raise LLMClientError(
-        f"Unknown ZV_LLM_PROVIDER={provider!r}. Supported: anthropic."
+        f"Unknown provider {provider!r}. "
+        f"Supported: {', '.join(sorted({p for p, _ in MODEL_PREFIXES.values()}))}."
     )
+
+
+def get_llm_client(
+    model: Optional[str] = None,
+    api_key: Optional[str] = None,
+) -> LLMClient:
+    """Factory: pick an LLMClient by model prefix.
+
+    Resolution order:
+      1. If ``model`` is explicit, route by prefix (``claude*`` → Anthropic,
+         ``grok*`` → Grok). Unknown prefix → error listing available providers.
+      2. If ``model`` is None:
+         - If ``ZV_LLM_MODEL`` env is set, treat it as the model and recurse.
+         - Else prefer Anthropic if ``ANTHROPIC_API_KEY`` is set.
+         - Else fall back to Grok if ``XAI_API_KEY`` is set.
+         - Else raise with the Anthropic setup hint (the most common path).
+    """
+    if model is None:
+        env_model = os.environ.get("ZV_LLM_MODEL", "").strip()
+        if env_model:
+            return get_llm_client(model=env_model, api_key=api_key)
+        if os.environ.get("ANTHROPIC_API_KEY"):
+            return AnthropicClient(model=None, api_key=api_key)
+        if os.environ.get("XAI_API_KEY"):
+            cls = _resolve_client_class("grok")
+            return cls(model=None, api_key=api_key)
+        raise LLMClientError(ANTHROPIC_API_KEY_HELP)
+
+    model_norm = model.strip().lower()
+    for prefix, (provider, _env) in MODEL_PREFIXES.items():
+        if model_norm.startswith(prefix):
+            cls = _resolve_client_class(provider)
+            return cls(model=model, api_key=api_key)
+
+    known = sorted(MODEL_PREFIXES.keys())
+    raise LLMClientError(
+        f"Model {model!r} does not match any known provider prefix. "
+        f"Known prefixes: {', '.join(known)}."
+    )
+
+
+def make_client(model: Optional[str] = None, api_key: Optional[str] = None) -> LLMClient:
+    """Back-compat alias for ``get_llm_client``.
+
+    Previously only selected Anthropic via a ``ZV_LLM_PROVIDER`` env var.
+    Now routes through the prefix registry so existing call sites that pass
+    ``model="claude-..."`` or ``model="grok-..."`` work transparently.
+    """
+    return get_llm_client(model=model, api_key=api_key)
