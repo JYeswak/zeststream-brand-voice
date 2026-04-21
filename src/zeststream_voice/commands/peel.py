@@ -1084,6 +1084,186 @@ def block_3_method(state: PeelState) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Block 5 — BANS
+# ---------------------------------------------------------------------------
+
+
+# Starter default-slop list — operators extract their own bans by
+# intersecting this with the nauseating-copy paste they provide in Q5.1.
+# Do NOT re-derive per brand.
+DEFAULT_SLOP = [
+    "platform", "enterprise", "seamless", "transformation", "robust",
+    "leverage", "streamline", "synergy", "innovative", "cutting-edge",
+    "paradigm", "disrupt", "solution", "empower", "unlock",
+    "revolutionize", "best-in-class", "world-class",
+]
+
+
+def _extract_slop_candidates(paste: str) -> dict[str, int]:
+    """Return {slop_word: count} for DEFAULT_SLOP terms appearing in paste.
+
+    Case-insensitive. Hyphenated slop ("cutting-edge") uses substring
+    search; single-word slop uses the Vale tokenizer so "leveraging"
+    does not match "leverage".
+    """
+    lowered = paste.lower()
+    tokens = [t.lower() for t in _WORD_RE.findall(paste)]
+    counts: dict[str, int] = {}
+    for term in DEFAULT_SLOP:
+        if "-" in term:
+            c = lowered.count(term)
+            if c:
+                counts[term] = c
+        else:
+            c = sum(1 for t in tokens if t == term)
+            if c:
+                counts[term] = c
+    return counts
+
+
+def _read_multiline(prompt: str, *, min_lines: int = 3) -> str:
+    """Read multi-line input until a blank line. Re-prompt if <min_lines."""
+    while True:
+        click.echo(prompt)
+        click.echo(
+            f"  (end with a blank line; need at least {min_lines} "
+            "non-empty lines)"
+        )
+        lines: list[str] = []
+        while True:
+            raw = click.get_text_stream("stdin").readline()
+            if raw == "":
+                break
+            stripped = raw.rstrip("\n")
+            if stripped.strip() == "":
+                break
+            lines.append(stripped)
+        if len(lines) >= min_lines:
+            return "\n".join(lines)
+        click.echo(f"  need at least {min_lines} non-empty lines, got {len(lines)}")
+
+
+def block_5_bans(state: PeelState) -> dict:
+    """Collect BANS block. Returns dict with banned_words, banned_phrases,
+    and (optionally) attribution_rules. Block 8 reads these from state so
+    its inline scanner can count hits while the operator types exemplars.
+    """
+    click.echo("")
+    click.echo("=" * 60)
+    click.echo("BLOCK 5 — BANS")
+    click.echo("=" * 60)
+    click.echo(
+        "Lexical grep guard — the cheapest, highest-leverage voice enforcement.\n"
+        "Every banned word caught pre-emit never reaches the weighted rubric.\n"
+    )
+
+    paste = _read_multiline(
+        "Q5.1 Paste 3-5 sentences from competitors or marketing you find "
+        "nauseating. (We'll extract ban patterns.)",
+        min_lines=3,
+    )
+
+    candidates = _extract_slop_candidates(paste)
+    accepted_from_slop: list[str] = []
+    if candidates:
+        click.echo("")
+        click.echo("Auto-extracted ban candidates (default-slop ∩ your paste):")
+        for term, count in sorted(candidates.items(), key=lambda x: (-x[1], x[0])):
+            click.echo(f"  {term}  (×{count})")
+        choice = _ask_choice(
+            "Q5.2 Accept these bans? [all/none/select]",
+            ["all", "none", "select"],
+            default="all",
+        )
+        if choice == "all":
+            accepted_from_slop = sorted(candidates.keys())
+        elif choice == "select":
+            for term in sorted(candidates.keys()):
+                if _ask_yn(f"  ban {term!r}?", default=True):
+                    accepted_from_slop.append(term)
+    else:
+        click.echo("  (no default-slop terms found in your paste)")
+
+    custom_words = _ask_list(
+        "Q5.3 Any custom single-word bans specific to your domain? "
+        "(comma-separated)"
+    )
+
+    banned_phrases = _ask_list(
+        'Q5.4 Banned PHRASES (multi-word patterns)? '
+        '(comma-separated; e.g. "Not just X but Y","In today\'s world")'
+    )
+
+    click.echo("")
+    click.echo("Q5.5 Attribution rules — tools built by others that MUST be credited.")
+    click.echo(
+        "  Format each as '<tool> — <upstream_author>'  "
+        "(comma-separated). Leave blank for none."
+    )
+    raw_attrs = _ask_list("  attribution list?")
+    attribution_rules: list[dict] = []
+    for raw in raw_attrs:
+        parts = re.split(r"\s+[—–-]\s+|\s*\|\s*", raw, maxsplit=1)
+        if len(parts) != 2:
+            click.echo(
+                f"  could not parse {raw!r} — expected 'tool — author'; skipping"
+            )
+            continue
+        tool = parts[0].strip()
+        author = parts[1].strip()
+        if not tool or not author:
+            continue
+        default_regex = rf"\b{re.escape(tool)}\b(?!.*{re.escape(author)})"
+        q56 = _ask(
+            f"Q5.6 Auto-reject regex for misattributing {tool!r}? "
+            "(blank = generated default)",
+            default="",
+        )
+        regex = q56 or default_regex
+        try:
+            re.compile(regex)
+        except re.error as e:
+            click.echo(f"  invalid regex ({e}); falling back to generated default")
+            regex = default_regex
+        rule_id = re.sub(r"[^a-z0-9]+", "_", tool.lower()).strip("_") or "attribution"
+        attribution_rules.append({
+            "id": rule_id,
+            "upstream_author": author,
+            "tools": [tool],
+            "rule": f"Cite {author} whenever {tool} is mentioned.",
+            "trigger_regex": regex,
+            "action": "auto_reject",
+            "explanation": (
+                f"Prevents silently reattributing {tool} away from {author}."
+            ),
+        })
+
+    never_appear = _ask_list(
+        "Q5.7 Any subject/phrase that must NEVER appear in copy "
+        "(trademarked competitor, deprecated product, NDA-covered client)?"
+    )
+
+    banned_words = list(dict.fromkeys(accepted_from_slop + custom_words))
+    banned_phrases_combined = list(dict.fromkeys(banned_phrases + never_appear))
+
+    payload: dict = {
+        "banned_words": banned_words,
+        "banned_phrases": banned_phrases_combined,
+    }
+    if attribution_rules:
+        payload["attribution_rules"] = attribution_rules
+
+    click.echo("")
+    click.echo(
+        f"BANS locked: {len(banned_words)} words, "
+        f"{len(banned_phrases_combined)} phrases, "
+        f"{len(attribution_rules)} attribution rules."
+    )
+
+    return payload
+
+
+# ---------------------------------------------------------------------------
 # Block 8 / 9 shared helpers (banned-word scanning via scorer layer 1)
 # ---------------------------------------------------------------------------
 
@@ -1474,6 +1654,18 @@ def merge_to_voice_yaml(brand_dir: Path, state: PeelState) -> Path:
     if b3 and b3.get("method"):
         voice["method"] = b3["method"]
 
+    # Block 5 BANS — top-level lists inlined into voice.yaml so the Layer 1
+    # scorer picks them up directly. attribution_rules only emitted if
+    # Q5.5 produced at least one rule (absence is meaningful).
+    b5 = state.answers.get("5", {})
+    if b5:
+        if b5.get("banned_words"):
+            voice["banned_words"] = b5["banned_words"]
+        if b5.get("banned_phrases"):
+            voice["banned_phrases"] = b5["banned_phrases"]
+        if b5.get("attribution_rules"):
+            voice["attribution_rules"] = b5["attribution_rules"]
+
     # Block 4 RECEIPTS is a sidecar file; voice.yaml just references its path
     # so downstream workers know where to cite claims from. The actual
     # receipts live in brands/<slug>/data/capabilities-ground-truth.yaml.
@@ -1661,9 +1853,16 @@ def cli(
         state.current_block = 5
         save_state(dirs.brand_dir, state)
 
-    # Block 5 — BANS (stub)
-    if 5 not in state.blocks_completed and skip_block != 5:
-        block_stub(5)
+    # Block 5 — BANS
+    if 5 in state.blocks_completed:
+        click.echo("Block 5 already complete — skipping.")
+    elif skip_block == 5:
+        click.echo("Skipping Block 5 (--skip-block).")
+    else:
+        state.answers["5"] = block_5_bans(state)
+        state.blocks_completed.append(5)
+        state.current_block = 6
+        save_state(dirs.brand_dir, state)
 
     # Block 6 — WE_ARE / WE_ARE_NOT
     if 6 in state.blocks_completed:
@@ -1680,10 +1879,27 @@ def cli(
     if 7 not in state.blocks_completed and skip_block != 7:
         block_stub(7)
 
-    # Blocks 8 + 9 stubs (other workers own the full implementations).
-    for n in (8, 9):
-        if n not in state.blocks_completed and skip_block != n:
-            block_stub(n)
+    # Block 8 — SITUATION PLAYBOOKS
+    if 8 in state.blocks_completed:
+        click.echo("Block 8 already complete — skipping.")
+    elif skip_block == 8:
+        click.echo("Skipping Block 8 (--skip-block).")
+    else:
+        state.answers["8"] = block_8_playbooks(state)
+        state.blocks_completed.append(8)
+        state.current_block = 9
+        save_state(dirs.brand_dir, state)
+
+    # Block 9 — EXEMPLARS SEED
+    if 9 in state.blocks_completed:
+        click.echo("Block 9 already complete — skipping.")
+    elif skip_block == 9:
+        click.echo("Skipping Block 9 (--skip-block).")
+    else:
+        state.answers["9"] = block_9_exemplars(state, dirs.brand_dir)
+        state.blocks_completed.append(9)
+        state.current_block = 10
+        save_state(dirs.brand_dir, state)
 
     # Compose voice.yaml + silent-failure guard
     written = merge_to_voice_yaml(dirs.brand_dir, state)
