@@ -18,6 +18,7 @@ import click
 
 from zeststream_voice import __version__
 from zeststream_voice._brands import discover_brand
+from zeststream_voice.commands.peel import cli as peel_cmd
 from zeststream_voice.sdk import BrandVoiceEnforcer
 
 
@@ -243,6 +244,9 @@ def ground_cmd(
     click.echo(f"unmatched: {len(result.unmatched)}")
     for c in result.unmatched:
         click.echo(f"  ? {c.value} (context: …{c.context.strip()[:80]}…)")
+
+
+cli.add_command(peel_cmd, name="peel")
 
 
 def main() -> None:
