@@ -5,7 +5,7 @@ description: Use when writing, reviewing, or grading any user-visible copy for z
 
 # ZestStream Brand Voice — Enforcement Skill
 
-> *"I build things that work, and I show you the receipt."* — Canon line. This skill exists so every sentence on zeststream.ai carries that weight without drifting.
+> *"I help SMB owners buy their time back."* — Canon line. This skill exists so every sentence on zeststream.ai carries that weight without drifting.
 
 ## What this skill is
 

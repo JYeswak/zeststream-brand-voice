@@ -211,4 +211,4 @@ There is no next step. Pour is where the system runs. You come back when:
 
 The repo now works for you. That's the whole point of the 4-step journey.
 
-*I build things that work, and I show you the receipt.* This repo is one of those receipts.
+*I help SMB owners buy their time back.* The operating principle — every claim has a receipt — is how the system stays honest, and this repo is one of those receipts.

@@ -131,4 +131,4 @@ This system **compounds** on the mechanical axes (rule set grows, exemplars prom
 
 If this doc stops being true, file an issue titled `IS-IT-ACCRETIVE is out of date`. Or delete the parts that stopped compounding and rethink.
 
-I build things that work, and I show you the receipt. This doc is the receipt for the accretive claim.
+This doc is how I help owners buy their time back. The operating principle — every claim has a receipt — is what keeps it honest; this doc is that receipt for the accretive claim.

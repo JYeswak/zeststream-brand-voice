@@ -15,11 +15,16 @@ brand:
 # CANON — verbatim, never paraphrased
 # ============================================================================
 canon:
-  primary: "I build things that work, and I show you the receipt."
+  primary: "I help SMB owners buy their time back."
   variants_approved:
-    - "I'm Joshua. I build things that work."
+    - "I help SMB owners buy their Tuesdays back."
+    - "I am Joshua. I build things that work."
     - "Most consultants hand you a slide deck and leave. I hand you a working system."
   rule: "Primary canon appears verbatim at least once per top-level route. Variants allowed on /about opener."
+  # DEMOTED 2026-04-21 per .planning/brand-voice-cli/08-canon-migration.md:
+  # "I build things that work, and I show you the receipt." — now an operating principle, not canon.
+  # The receipt RULE (every claim has a receipt) is preserved via receipt_shown dim, three_moves.show_receipt,
+  # and claims_ungrounded grounding layer — all UNCHANGED.
 
 method:
   name_full: "Peel. Press. Pour.™"

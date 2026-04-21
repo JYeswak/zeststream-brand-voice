@@ -35,6 +35,6 @@ I'm Joshua Nowak. I wire AI into businesses that already work — and leave them
 
 Book a 20-minute **Peel session**. $0. Specific. No pitch at the end.
 
-I build things that work, and I show you the receipt.
+I help SMB owners buy their time back.
 
 [Book a Peel session →]

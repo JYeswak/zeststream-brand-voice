@@ -44,7 +44,7 @@ Claims ungrounded: none to extract (there are no factual claims; that's *also* a
 ## AFTER (post-system, composite 97)
 
 ```
-I build things that work, and I show you the receipt.
+I help SMB owners buy their time back.
 
 I'm Joshua Nowak. I wire AI into businesses that already work —
 96 production n8n workflows, an 8-GPU inference stack rebuilt from
@@ -84,7 +84,7 @@ Trademark errors: none.
 
 ## What changed (the diff that matters)
 
-1. **Canon line added.** The entire hero now anchors on "I build things that work, and I show you the receipt." Every other sentence serves that anchor.
+1. **Canon line added.** The entire hero now anchors on "I help SMB owners buy their time back." Every other sentence serves that anchor. (The older "I build things that work, and I show you the receipt." line is retained as an operating principle — the receipt rule still drives scoring — but it no longer sits in the canonical hero slot.)
 2. **Pronoun flipped** from third-person to first-person singular. Matches `voice.yaml.posture.voice: "first-person singular"`.
 3. **Abstractions replaced with receipts.** "Cutting-edge AI platform" became "96 production n8n workflows, an 8-GPU inference stack, a 910× cache-hit improvement." Three concrete numbers.
 4. **CTA flipped** from "Request a Demo" (sales gate) to "Book a Peel session, $0, no pitch" (low-friction invite).

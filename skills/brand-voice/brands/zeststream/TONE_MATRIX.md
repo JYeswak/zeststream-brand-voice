@@ -84,7 +84,7 @@ Default to **operator × phase=na** — build-confident, specific, technical-acc
 Coordinate: hero × customer × peel → `direct + inviting`
 
 **Right:**
-> "I'm Joshua. Book a 20-minute Peel session and we'll map the system you're running. Free, specific, no pitch at the end. I build things that work, and I show you the receipt."
+> "I'm Joshua. Book a 20-minute Peel session and we'll map the system you're running. Free, specific, no pitch at the end. I help SMB owners buy their time back."
 
 Why: declarative, first-person, concrete ("20-minute", "map the system"), inviting ("book"), no hedge, canon at end, audience-appropriate (customer, not operator).
 

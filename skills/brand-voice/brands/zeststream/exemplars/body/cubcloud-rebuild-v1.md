@@ -43,4 +43,4 @@ I rebuilt it from bare metal.
 
 CubCloud runs the business. I remain their architecture partner on a project basis.
 
-I build things that work, and I show you the receipt.
+I help SMB owners buy their time back.

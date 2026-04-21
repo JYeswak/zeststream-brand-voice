@@ -20,7 +20,9 @@ Use verbatim or adapt. Every phrase has a mental-model shift attached and a cont
 
 | Phrase | Mental-model shift | Use context |
 |--------|---------------------|-------------|
-| "I build things that work, and I show you the receipt." | From "AI is magic" → "AI is wiring, and I show the work" | Canon. Every top-level route. |
+| "I help SMB owners buy their time back." | From "AI is magic" → "AI buys you hours back, measured and specific" | Canon. Every top-level route. |
+| "I help SMB owners buy their Tuesdays back." | Same shift, Tuesday motif — specifies the day you get back | /about, video, social |
+| "I am Joshua. I build things that work." | Soft opener — identity + posture without the canonical claim | /about opener, video intros |
 | "Most consultants hand you a slide deck and leave. I hand you a working system." | From "consulting = vaporware" → "consulting = shipped systems I own" | /about, /consult hero |
 | "The models got cheap. The glue never did." | From "AI will commoditize my problem" → "the integration *against my stack* is the work" | /work, / hero |
 | "I wire systems together so the work leaves your inbox and lands where it belongs." | From "automation = replacement" → "automation = offloading what drains you" | / hero, /consult |
@@ -30,6 +32,7 @@ Use verbatim or adapt. Every phrase has a mental-model shift attached and a cont
 
 | Phrase | Mental-model shift | Use context |
 |--------|---------------------|-------------|
+| "I build things that work, and I show you the receipt." | operating principle, not canon — demoted 2026-04-21, receipt rule preserved via scorer | Body copy where evidence posture needs a line; never as canonical-position hero line |
 | "Most companies aren't ready for AI yet — their systems don't talk." | From "I'm behind on AI" → "my *ops* are behind, which is fixable" | /services, /methods |
 | "Fix the plumbing first. Then add the intelligence." | From "AI is an upgrade" → "AI is a layer on top of working plumbing" | /methods/* |
 | "One workflow compounds — into team time, better decisions, breathing room." | From "ROI is hype" → "compounding works mechanically" | /consult, case studies |
