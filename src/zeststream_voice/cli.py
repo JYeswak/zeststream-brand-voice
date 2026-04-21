@@ -28,6 +28,7 @@ from zeststream_voice.commands.history import (
 from zeststream_voice.commands.peel import cli as peel_cmd
 from zeststream_voice.commands.reply import cli as reply_cmd
 from zeststream_voice.commands.rewrite import cli as rewrite_cmd
+from zeststream_voice.commands.compare_audio import cli as compare_audio_cmd
 from zeststream_voice.commands.score_audio import cli as score_audio_cmd
 from zeststream_voice.sdk import BrandVoiceEnforcer
 
@@ -265,6 +266,7 @@ cli.add_command(tag_cli, name="tag")
 cli.add_command(revert_cli, name="revert")
 cli.add_command(diff_cli, name="diff")
 cli.add_command(score_audio_cmd, name="score-audio")
+cli.add_command(compare_audio_cmd, name="compare-audio")
 
 
 def main() -> None:
