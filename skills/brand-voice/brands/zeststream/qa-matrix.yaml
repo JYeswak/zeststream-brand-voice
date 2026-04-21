@@ -1,0 +1,435 @@
+version: 1
+brand: zeststream
+locked_by: joshua_nowak
+last_interview: null
+tiers:
+  T1_top_of_funnel: 20
+  T2_awareness: 15
+  T3_consideration: 25
+  T4_decision: 20
+  T5_retention: 10
+  T6_referral: 5
+registers:
+  lay_audience: lay_audience
+  technical_peer: technical_peer
+  journalist: journalist
+  investor: investor
+  default: lay_audience
+qa:
+  - id: t1_what_do_you_do
+    tier: T1_top_of_funnel
+    question_variants:
+      - What do you do?
+      - What is ZestStream?
+      - What services do you offer?
+      - Tell me about your business
+    canonical_answer: |
+      Joshua helps business owners buy their time back. He automates or removes the most frustrating parts of your week — for you, for your team, or the background work nobody has time for. If you've got a problem in your business, chances are he's seen it and worked through creative solutions to at least part of it. And if he doesn't know today, his AI-powered ecosystem helps him dig into the latest research and turn it into fresh builds or demos fast.
+    register: lay_audience
+    banned_in_this_answer:
+      - Muri
+      - Muda
+      - Mura
+      - Monozukuri
+      - kaizen
+      - n8n
+      - multi-agent
+      - Yuzu Method
+      - Peel
+      - Press
+      - Pour
+    note: Must avoid jargon completely
+  - id: t1_who_is_joshua
+    tier: T1_top_of_funnel
+    question_variants:
+      - Who are you?
+      - What's your background?
+      - Who is Joshua Nowak?
+      - Tell me about the founder
+    canonical_answer: |
+      Joshua Nowak. 25+ years in the operational trenches — started at 15, worked through finance, banking, energy, telecom, now AI. Graduated out of Michigan in '08, right as the auto industry collapsed, so he got out. Paid off six figures in student loans working three jobs, got his MBA while managing a team full-time. Spent 15 years in Steamboat Springs running operations at ZIRKEL — led the sale of the company in 2024 and took an equity payout. Lived out of a fifth wheel around Colorado and Texas for a year, landed in Montana end of last year. Works hard, plays hard, outdoor life. That's the short version — what do you want to dig into?
+    register: lay_audience
+  - id: t1_why_should_i_care
+    tier: T1_top_of_funnel
+    question_variants:
+      - Why should I work with you?
+      - What makes you different?
+      - Why ZestStream?
+      - What's your edge?
+      - Why you over someone else?
+    canonical_answer: |
+      Most people selling AI automations right now are learning it on your dime. Joshua spent 25 years actually running operations before he touched AI — so when he looks at your business, he's seen the mess before. He does the work himself, end to end. No offshore handoff, no junior on your account, no "we'll get back to you after the agency meeting." AI just lets him ship in a morning what used to take weeks. And he doesn't sell automations — he sells your week back. If that's what you want, the Peel session is free.
+    register: lay_audience
+  - id: t1_how_much_does_it_cost
+    tier: T1_top_of_funnel
+    question_variants:
+      - How much does it cost?
+      - What are your prices?
+      - How much for your services?
+      - Pricing?
+    canonical_answer: 'Two public prices — a free 20-minute Peel session, and a $500 Peel Report if you want to go deeper. Anything past that gets quoted after Peel, since scope drives the number.'
+    register: lay_audience
+    banned_in_this_answer:
+      - $3k
+      - $3,000
+      - engagement minimum
+      - engagement floor
+      - hourly
+      - per hour
+      - /hr
+  - id: t1_what_is_peel_session
+    tier: T1_top_of_funnel
+    question_variants:
+      - What is a Peel session?
+      - Tell me about Peel
+      - What's the first step?
+      - How does it start?
+      - What happens in the free call?
+      - What do I get out of 20 minutes?
+    canonical_answer: |
+      The Peel session is a free 20-minute call where you bring the one thing in your business that's eating your week — a broken process, a tool nobody uses, a report someone rebuilds every Monday. Joshua digs into the shape of it with you. By the end, you'll walk away with three things: a clear read on whether it's fixable, a rough cost if Joshua builds it, and how fast he could ship. Most people are surprised how much can be moved in a morning instead of a quarter. No pitch, no slides, no commitment — and if it's not a fit, Joshua will tell you straight and point you somewhere useful. The worst case is you get 20 minutes of free operational triage. Want to grab a slot?
+    register: lay_audience
+  - id: t1_what_is_peel_report
+    tier: T1_top_of_funnel
+    question_variants:
+      - What is the Peel Report?
+      - What's included in the $500 deliverable?
+      - What do I get from Peel?
+      - Peel output?
+      - What's the $500 for?
+    canonical_answer: |
+      One week. $500 fixed. Joshua walks your systems with you, interviews two or three people on the team who actually run the process, and writes you a report by Friday — the biggest time leaks named and ranked, with a rough cost to fix each one.
+
+      Most people ask why not do this in-house. Your team's already buried — pulling them off real work to audit the work is how you get a half-finished doc nobody reads. They also haven't spent 25 years watching operations break the same six ways, so they can't tell in five minutes which fixes compound and which eat a quarter. And an outside read is cleaner — no one's protecting the last thing they built.
+
+      Honest note — $500 is loss-leader pricing while Joshua is building the system. Every report becomes a template for the next one, so the work gets faster. Early clients get senior-operator work at a rate that won't last. Grab a slot if the timing's right.
+    register: lay_audience
+  - id: t1_what_kind_of_results
+    tier: T1_top_of_funnel
+    question_variants:
+      - What kind of results do you deliver?
+      - What do clients get?
+      - Typical outcomes?
+      - What changes for clients?
+      - What will I get?
+    canonical_answer: |
+      Most of Joshua's clients show up with a pile of messy data and systems that don't talk to each other. If you've got all your ducks in a row, congrats — most people don't, and that's why he's here.
+
+      The first stages are always cleanup and flow. Automating email-to-CRM entry. Customizing reply templates. Building a database that links the systems you've already paid for. Nothing flashy — just the plumbing that should have been there from the start.
+
+      The slowest part is usually vendor credentials — some take days, some take weeks to get back, which is often the longest hold-up. Once past that, hours start vanishing from people's weeks. Teams get back time for the needle-turning work they're actually hired for. If you're running solo — you start enjoying dinners again.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 9
+      mechanism: 9
+      a_pile: 8
+      slippery_slope: 9
+      composite: 44
+  - id: t1_tell_me_recent_client_win
+    tier: T1_top_of_funnel
+    question_variants:
+      - Recent client success?
+      - Tell me about a win
+      - Case study example?
+      - Client results?
+      - Share a recent project you shipped
+    canonical_answer: |
+      Three recent ones, different flavors. A client running a booth at a Missoula expo wanted a creative draw to her booking page. Joshua built her a Grok-powered chatbot trained on every vendor at the show — knew where each booth was, their websites, phone numbers, even where to find food and restrooms. He digitized a local community resource on top of it, free to the public.
+
+      Second client was paying $25,000 a year for a service that connected two of their systems. They asked for a replacement. Joshua is building them a full custom app that pulls data from five systems, automates validation, flags red-flag records for the team to merge or clean, all wrapped in role-based access and OAuth into their HubSpot.
+
+      Third is a gym — digitizing their onboarding, automating incoming inquiries, and tightening their marketing. Every build starts the same way: what exists today, what's ideal for the client, what levers make it easy. Joshua doesn't jam round pegs into square holes. He custom-fits the chassis to the work.
+    register: lay_audience
+    craft_score:
+      specificity: 10
+      objection_first: 8
+      mechanism: 9
+      a_pile: 9
+      slippery_slope: 9
+      composite: 45
+    note: |
+      In-pocket pricing receipt for $25k replacement client (NOT for spoken answer — only if prospect asks about pricing comparisons): Joshua's replacement comes in at $1,500/month (~$18k/year), which includes hosting + significantly more functionality than the $25k prior service. Client saves ~$7k/year AND gets a better system AND works with a local operator who can show up when things need smoothing. Do NOT volunteer this number; use only when directly relevant to a pricing objection about custom-builds vs off-the-shelf.
+  - id: t1_what_tools_do_you_use
+    tier: T1_top_of_funnel
+    question_variants:
+      - What tools do you use?
+      - What AI do you use?
+      - Your toolkit?
+      - How do you build this stuff?
+    canonical_answer: |
+      Joshua runs a full engineering stack — real databases, modern AI models from every major provider, custom code — not drag-and-drop glue that breaks when you look at it wrong. He picks the tool that fits the job instead of jamming everything through one platform.
+
+      He's also partnered with a local Missoula AI company that runs GPUs on-site, which means if you need your data to stay sovereign — not flowing through OpenAI or Google — that's an option most consultants can't offer.
+
+      Most prospects don't need to know what's under the hood — just that it's built to last, owned by you, and won't disappear if some vendor gets acquired. If you want the deep-tech answer, Joshua will gladly nerd out.
+    register: lay_audience
+    banned_in_this_answer:
+      - Muri
+      - Muda
+      - Mura
+      - Monozukuri
+      - kaizen
+      - n8n
+      - Supabase
+      - Railway
+      - Vercel
+      - Postgres
+      - Docker
+      - Nango
+      - Infisical
+      - Bifrost
+      - sglang
+      - multi-agent
+      - MCP
+      - Qdrant
+    craft_score:
+      specificity: 8
+      objection_first: 9
+      mechanism: 9
+      a_pile: 8
+      slippery_slope: 9
+      composite: 43
+    escalation:
+      if_prospect_asks_for_specifics: t1_what_tools_do_you_use__technical
+      trigger_phrases:
+        - "what stack specifically"
+        - "what frameworks"
+        - "do you use [specific tool]"
+        - "no, the real stack"
+        - "what's under the hood"
+        - "what cloud"
+  - id: t1_what_tools_do_you_use__technical
+    tier: T1_top_of_funnel
+    question_variants:
+      - What's your technical stack?
+      - What frameworks do you use?
+      - What cloud do you deploy on?
+      - What specific AI models and tools?
+      - The real stack — what are you running?
+      - Give me the deep-tech answer
+    canonical_answer: |
+      Happy to go deep. Frontend is Next.js on Vercel. Backend runs on Railway and Supabase — Postgres, Docker containers, OAuth via Nango, secrets via Infisical. AI models across Claude, ChatGPT, Grok, and Google — chat, voice, and image. Workflow orchestration is n8n plus a custom multi-agent system Joshua built himself. For sovereign-AI needs, he's partnered with CubCloud in Missoula — 8 GPUs running Bifrost and sglang on-prem, so sensitive data never leaves Montana. Add video production, sonic branding, whatever the build needs. If it exists online, Joshua can bake it in.
+    register: technical_peer
+    craft_score:
+      specificity: 10
+      objection_first: 7
+      mechanism: 9
+      a_pile: 9
+      slippery_slope: 8
+      composite: 43
+    note: |
+      Technical follow-up to t1_what_tools_do_you_use. Only fire when prospect signals technical comfort (asks for specific stack, mentions frameworks, drops tool names). Zest should NOT lead with this — always start with the lay version and escalate only when prospect pushes.
+  - id: t1_is_this_for_me
+    tier: T1_top_of_funnel
+    question_variants:
+      - Is this right for my business?
+      - Do you work with companies like mine?
+      - Is ZestStream a fit?
+      - Who do you serve?
+      - Am I a good fit?
+      - Will this work for my business?
+    canonical_answer: |
+      Joshua is a fit if you run a business with messy data, systems that don't talk, or a team that's burning hours on work a machine should handle. He does his best work with owner-operators and small teams who can sit with him for 20 minutes and point at the thing that hurts.
+
+      He's not a fit if you want an off-the-shelf SaaS to solve your problem, if you need a Fortune-500 enterprise rollout with six vendors in the room, or if you want someone to build something with no input from you. The Peel session is partly a fit check both directions — by the end of 20 minutes, Joshua will tell you straight if this is the right call.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 9
+      mechanism: 8
+      a_pile: 8
+      slippery_slope: 9
+      composite: 43
+  - id: t1_how_do_i_start
+    tier: T1_top_of_funnel
+    question_variants:
+      - How do I get started?
+      - Next steps?
+      - Book a call?
+      - How to begin?
+      - How do I start?
+      - What's the first step?
+    canonical_answer: |
+      Easiest first step is the free Peel session — 20 minutes, video call, you bring the thing in your business that's eating your week. Book a slot on the consult page and Joshua will reach out with a couple of times. If you'd rather email first, that's fine too — either way, start with the call.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 7
+      mechanism: 8
+      a_pile: 9
+      slippery_slope: 9
+      composite: 42
+  - id: t1_how_long_does_it_take
+    tier: T1_top_of_funnel
+    question_variants:
+      - How long does it take?
+      - Timeline?
+      - How fast are results?
+      - Delivery time?
+      - When can I see results?
+    canonical_answer: |
+      Peel Report is one week, fixed. Past that, it depends on what Joshua is building.
+
+      Demos and MVPs usually land in weeks or less. A working prototype you can click, show a team, or test internally — that's fast. Custom builds with real databases, custom front ends, role-based access — those take weeks to a few months, because that's real engineering and he won't fake it.
+
+      The other timeline variable is third-party approvals — Google's app verification can take several weeks, Meta's app review takes time, Apple's store reviews move when they move. None of that is in anyone's control, so Joshua plans around it and keeps you moving on other parts of the build while queues run.
+
+      Joshua gives you a real estimate at the end of the Peel, with the waiting-on-vendors pieces called out separately so nothing feels like it stalled.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 9
+      mechanism: 9
+      a_pile: 8
+      slippery_slope: 9
+      composite: 44
+  - id: t1_do_you_work_with_small_business
+    tier: T1_top_of_funnel
+    question_variants:
+      - Do you work with small businesses?
+      - Startup friendly?
+      - Minimum size?
+      - SMB experience?
+      - Am I too small?
+    canonical_answer: |
+      Small businesses and owner-operators are exactly where Joshua likes to spend his time. The five-company merger and the $25k-integration rebuild are the bigger projects, but plenty of his clients are solo operators or teams under 10 people who just need the plumbing to work and their week back. There's no minimum size. The more useful question is whether the thing you want built is worth the time — and that's what the Peel session is for. Twenty minutes, no pressure, and you'll know.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 9
+      mechanism: 8
+      a_pile: 8
+      slippery_slope: 9
+      composite: 43
+  - id: t1_can_you_do_X
+    tier: T1_top_of_funnel
+    question_variants:
+      - Can you do custom work?
+      - Build X for me?
+      - Handle Y project?
+      - Scope Z possible?
+      - Can you build a [specific thing]?
+      - Do you do [specific thing]?
+    canonical_answer: |
+      Short answer is probably yes. Joshua's built chatbots, custom apps, data pipelines, voice agents, automations, reporting dashboards, marketing systems, onboarding flows — if it exists online, he can usually bake it into your business. The honest caveat is that "can do" and "should do" are different questions. Sometimes the right answer is don't build it, use the off-the-shelf tool, or fix the process before adding software. The Peel session is where that gets sorted. Bring the specific thing, Joshua will tell you straight.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 9
+      mechanism: 9
+      a_pile: 9
+      slippery_slope: 9
+      composite: 45
+  - id: t1_what_if_i_have_less_budget
+    tier: T1_top_of_funnel
+    question_variants:
+      - What if budget is tight?
+      - Less than $500?
+      - Smaller scope?
+      - Budget constrained?
+    canonical_answer: 'The public prices are the Peel session and the Peel Report. Past that, every build gets scoped real after Peel — Joshua will tell you honestly if the scope fits your budget. Book the free Peel and he will walk you through it.'
+    register: lay_audience
+    banned_in_this_answer:
+      - $3k
+      - hourly
+      - minimum
+      - floor
+  - id: t1_do_you_have_case_studies
+    tier: T1_top_of_funnel
+    question_variants:
+      - Do you have case studies?
+      - Client testimonials?
+      - Proof of work?
+      - Results examples?
+      - References?
+      - Can I see past work?
+    canonical_answer: |
+      Honest answer — Joshua doesn't sit down to write case studies. His reflection shows up in the next build. Once a project hits its goal, he sets a new goal and keeps moving. There's no shortage of information out there to lean on for the next problem, so he pours the time into shipping instead of writing retrospectives.
+
+      What he can do on the Peel session is walk you through live demos of recent work — the Grok-powered expo chatbot, the five-system integration rebuild, the onboarding automation for the gym — screenshared, in real time, same way he'd show you your own build. References from past clients are available further into a conversation. Seeing beats reading.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 10
+      mechanism: 9
+      a_pile: 9
+      slippery_slope: 9
+      composite: 46
+  - id: t1_why_are_you_solo
+    tier: T1_top_of_funnel
+    question_variants:
+      - Why solo operator?
+      - No team?
+      - One person business?
+      - Scale concerns?
+      - Are you a one-man shop?
+      - Do you have a team?
+    canonical_answer: |
+      Solo by design, not by default. Joshua is the one doing the work — the interviews, the architecture, the actual building, the cleanup. No account managers, no offshore handoffs, no junior dev learning on your budget. When you message him, he answers. When something breaks, he fixes it.
+
+      Modern AI lets one senior operator ship what used to take a full engineering team. Joshua has largely replaced a senior dev team this way, with zero communication barriers between sales and engineering — because he's both. He's also partnered with CubCloud in Missoula for the heavier infrastructure work — a real collaboration, not a subcontractor chain, with sovereign-AI options on local GPUs when a build needs them.
+
+      If a project ever needs more hands, you'll know who they are and why they're there. That's the whole model.
+    register: lay_audience
+    craft_score:
+      specificity: 9
+      objection_first: 10
+      mechanism: 9
+      a_pile: 9
+      slippery_slope: 9
+      composite: 46
+  - id: t1_where_are_you_based
+    tier: T1_top_of_funnel
+    question_variants:
+      - Where are you located?
+      - Time zone?
+      - Remote or local?
+      - Based where?
+    canonical_answer: 'Joshua is based in Montana. He works remote with clients across industries — the Peel session is over video.'
+    register: lay_audience
+  - id: t1_what_is_the_yuzu_method
+    tier: T1_top_of_funnel
+    question_variants:
+      - What is Yuzu Method?
+      - Your process?
+      - Methodology?
+      - Framework?
+      - Peel Press Pour?
+    canonical_answer: |
+      The Yuzu Method is how Joshua runs every project. Three stages — Peel, Press, Pour — but the names matter less than what they mean.
+
+      Peel is the discovery week. Joshua looks for three things borrowed from lean manufacturing — muri, mura, muda — overburden, unevenness, and waste. Those are the leaks in your operation. Press is the build — designing and shipping the fix. Pour is launch plus kaizen — a Japanese word that just means continuous improvement. It's the quiet work of watching how the build runs, catching what breaks, and making it better over time.
+
+      The whole thing is named after the yuzu fruit — a Japanese citrus that takes ten-plus years to bear fruit from seed. Slow to grow, sharp when it lands. That's the philosophy: don't rush past the thinking part, don't skip the cleanup. Build it once, build it right. Peel session is the free way to see if the method fits your problem.
+    register: lay_audience
+    craft_score:
+      specificity: 10
+      objection_first: 8
+      mechanism: 9
+      a_pile: 8
+      slippery_slope: 9
+      composite: 44
+  - id: t1_will_you_use_my_data
+    tier: T1_top_of_funnel
+    question_variants:
+      - Do you use my data for training?
+      - Privacy policy?
+      - Data usage?
+      - Train on my info?
+      - Is my data private?
+      - Will it train AI models?
+    canonical_answer: |
+      Short answer — no, your data isn't training anyone's model. When Joshua uses the major AI providers — Anthropic, OpenAI, xAI, Google — API access runs under terms where your data isn't used for training by default. He also doesn't sell or share client data with anyone, ever.
+
+      For anything genuinely sensitive — medical, legal, financial, internal HR — there's a sovereign-AI option through the CubCloud partnership. Data never leaves a Montana-based GPU rack. Your information stays yours, on-prem, no cloud round-trip.
+
+      If privacy is the first question, that's a great sign you're thinking right. Joshua will walk through exactly what touches what on the Peel session, before a single system is connected.
+    register: lay_audience
+    craft_score:
+      specificity: 10
+      objection_first: 10
+      mechanism: 9
+      a_pile: 9
+      slippery_slope: 9
+      composite: 47

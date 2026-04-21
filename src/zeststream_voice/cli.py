@@ -20,6 +20,7 @@ from zeststream_voice import __version__
 from zeststream_voice._brands import discover_brand
 from zeststream_voice.commands.draft import cli as draft_cmd
 from zeststream_voice.commands.peel import cli as peel_cmd
+from zeststream_voice.commands.reply import cli as reply_cmd
 from zeststream_voice.commands.rewrite import cli as rewrite_cmd
 from zeststream_voice.sdk import BrandVoiceEnforcer
 
@@ -251,6 +252,7 @@ def ground_cmd(
 cli.add_command(peel_cmd, name="peel")
 cli.add_command(draft_cmd, name="draft")
 cli.add_command(rewrite_cmd, name="rewrite")
+cli.add_command(reply_cmd, name="reply")
 
 
 def main() -> None:
