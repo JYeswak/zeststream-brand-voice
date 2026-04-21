@@ -306,6 +306,184 @@ def _parse_ffmpeg_output(text: str) -> AudioProbe:
 
 
 # ---------------------------------------------------------------------------
+# Hallucination dim — pure-text, gates the composite
+# ---------------------------------------------------------------------------
+#
+# Motivated by a real ship-blocker: Qwen 1.7B TTS produced audio that scored
+# composite 100 / PASS through the base gate despite 24 hallucinated words
+# (spurious intro, mid-script insert, end-loop). Each dim was fine in
+# isolation, but the composite didn't surface the semantic drift.
+#
+# This dim is HARD — it caps the composite when drift is bad enough that
+# the audio is saying something the script didn't. A 100 on fidelity /
+# pacing / silence over fabricated content is NOT a 100 composite.
+
+EXTRA_WORD_SLACK = 0.05          # 5% headroom for contractions/numerals.
+EXTRA_WORD_PENALTY_PER = 2.0     # points deducted per extra word over slack.
+LONGEST_MATCH_LOW = 0.80         # <0.80 → -20; <0.60 → -40 (tiered).
+LONGEST_MATCH_VERY_LOW = 0.60
+REPEATED_PHRASE_PENALTY = 10.0
+DRIFT_RATIO_THRESHOLD = 0.6
+DRIFT_PENALTY = 10.0
+DRIFT_WINDOW_TOKENS = 20
+REPETITION_NGRAM = 5
+HALLUCINATION_SOFT_CAP_THRESHOLD = 70.0
+HALLUCINATION_SOFT_CAP = 75.0
+HALLUCINATION_HARD_CAP_THRESHOLD = 50.0
+HALLUCINATION_HARD_CAP = 50.0
+
+
+def _longest_match_coverage(script_tokens: list[str], transcript_tokens: list[str]) -> float:
+    """Longest contiguous matching block / len(script). 1.0 = full-script match."""
+    from difflib import SequenceMatcher
+
+    if not script_tokens:
+        return 1.0
+    matcher = SequenceMatcher(a=script_tokens, b=transcript_tokens, autojunk=False)
+    longest = matcher.find_longest_match(0, len(script_tokens), 0, len(transcript_tokens))
+    return longest.size / len(script_tokens)
+
+
+def _detect_repeated_phrases(
+    script_tokens: list[str], transcript_tokens: list[str], n: int = REPETITION_NGRAM
+) -> list[str]:
+    """n-grams that (a) appear >=2x in transcript AND (b) appear exactly 1x in script.
+
+    These are the "loop" signatures — the model stuttered or re-read a chunk
+    that was a one-shot in the original script. Returns the n-gram strings.
+    """
+    if len(transcript_tokens) < n:
+        return []
+
+    def ngrams(tokens: list[str]) -> list[tuple[str, ...]]:
+        return [tuple(tokens[i : i + n]) for i in range(len(tokens) - n + 1)]
+
+    trans_ngrams = ngrams(transcript_tokens)
+    script_ngrams = ngrams(script_tokens)
+
+    # Count occurrences.
+    from collections import Counter
+    trans_counts = Counter(trans_ngrams)
+    script_counts = Counter(script_ngrams)
+
+    flagged: list[str] = []
+    seen: set[tuple[str, ...]] = set()
+    for ng, count in trans_counts.items():
+        if count < 2:
+            continue
+        if script_counts.get(ng, 0) != 1:
+            continue
+        if ng in seen:
+            continue
+        seen.add(ng)
+        flagged.append(" ".join(ng))
+    return flagged
+
+
+def _edge_drift_ratio(
+    script_tokens: list[str], transcript_tokens: list[str], *, head: bool
+) -> float:
+    """SequenceMatcher ratio between the first/last DRIFT_WINDOW_TOKENS tokens."""
+    from difflib import SequenceMatcher
+
+    w = DRIFT_WINDOW_TOKENS
+    if not script_tokens or not transcript_tokens:
+        return 1.0
+    if head:
+        a = script_tokens[:w]
+        b = transcript_tokens[:w]
+    else:
+        a = script_tokens[-w:]
+        b = transcript_tokens[-w:]
+    return SequenceMatcher(a=a, b=b, autojunk=False).ratio()
+
+
+def compute_hallucination_dim(reference_script: str, transcript: str) -> dict[str, Any]:
+    """Score hallucination 0-100 (higher = cleaner) + diagnostics + flags.
+
+    Purely text math. No audio deps. Runs on any (script, transcript) pair.
+    """
+    script_tokens = tokenize(reference_script)
+    trans_tokens = tokenize(transcript)
+    script_len = len(script_tokens)
+    trans_len = len(trans_tokens)
+
+    # 1. Extra-word ratio (over 5% slack).
+    slack_budget = script_len * (1 + EXTRA_WORD_SLACK)
+    extra_words = max(0, trans_len - int(slack_budget))
+    extra_penalty = extra_words * EXTRA_WORD_PENALTY_PER
+
+    # 2. Longest-matching-block coverage.
+    longest_cov = _longest_match_coverage(script_tokens, trans_tokens)
+    if longest_cov < LONGEST_MATCH_VERY_LOW:
+        longest_penalty = 40.0
+    elif longest_cov < LONGEST_MATCH_LOW:
+        longest_penalty = 20.0
+    else:
+        longest_penalty = 0.0
+
+    # 3. Repetition detection.
+    repeated = _detect_repeated_phrases(script_tokens, trans_tokens)
+    repeat_penalty = len(repeated) * REPEATED_PHRASE_PENALTY
+
+    # 4. Prefix/suffix drift.
+    head_ratio = _edge_drift_ratio(script_tokens, trans_tokens, head=True)
+    tail_ratio = _edge_drift_ratio(script_tokens, trans_tokens, head=False)
+    drift_penalty = 0.0
+    flags: list[str] = []
+    if head_ratio < DRIFT_RATIO_THRESHOLD:
+        drift_penalty += DRIFT_PENALTY
+        flags.append("spurious_prefix")
+    if tail_ratio < DRIFT_RATIO_THRESHOLD:
+        drift_penalty += DRIFT_PENALTY
+        flags.append("end_loop")
+
+    # Additional derived flags for explainability.
+    if extra_words >= max(10, int(script_len * 0.1)):
+        flags.append("excess_words")
+    if repeated:
+        flags.append("repeated_phrase")
+    if longest_cov < LONGEST_MATCH_LOW:
+        flags.append("broken_midscript")
+
+    total_penalty = extra_penalty + longest_penalty + repeat_penalty + drift_penalty
+    score = max(0.0, 100.0 - total_penalty)
+
+    return {
+        "score": round(score, 2),
+        "score_0_10": _round_half(score / 10.0),
+        "extra_words": int(extra_words),
+        "transcript_word_count": int(trans_len),
+        "script_word_count": int(script_len),
+        "longest_match_coverage": round(longest_cov, 4),
+        "repeated_phrases": repeated,
+        "prefix_drift_ratio": round(head_ratio, 4),
+        "suffix_drift_ratio": round(tail_ratio, 4),
+        "flags": flags,
+        "penalties": {
+            "extra_words": round(extra_penalty, 2),
+            "longest_match": round(longest_penalty, 2),
+            "repeated_phrases": round(repeat_penalty, 2),
+            "edge_drift": round(drift_penalty, 2),
+        },
+    }
+
+
+def apply_hallucination_cap(raw_composite: float, hallucination_score: float) -> float:
+    """Cap composite when the audio drifted from script.
+
+    < 50 hallucination → composite capped at 50 (P0 fail).
+    < 70 hallucination → composite capped at 75 (P1 ship-blocker).
+    Otherwise return raw composite unchanged.
+    """
+    if hallucination_score < HALLUCINATION_HARD_CAP_THRESHOLD:
+        return min(raw_composite, HALLUCINATION_HARD_CAP)
+    if hallucination_score < HALLUCINATION_SOFT_CAP_THRESHOLD:
+        return min(raw_composite, HALLUCINATION_SOFT_CAP)
+    return raw_composite
+
+
+# ---------------------------------------------------------------------------
 # Core scoring pipeline
 # ---------------------------------------------------------------------------
 
@@ -334,11 +512,17 @@ def score_audio_pipeline(
     transcriber: Transcriber,
     audio_probe: AudioProber,
     written_scorer: Callable[[str], dict[str, Any]],
+    apply_hallucination_cap_flag: bool = True,
 ) -> dict[str, Any]:
     """Pure-ish pipeline: transcribe, probe, score, compose.
 
     `written_scorer(transcript)` must return a dict with at least:
       {"composite": float, "layers": {...}, "passed": bool}
+
+    When `apply_hallucination_cap_flag=True` (default), a low hallucination
+    score caps the composite (75 @ <70, 50 @ <50) so fabricated content
+    cannot ship at a PASS composite. Disable for raw-dim inspection during
+    engine bakeoffs.
     """
     transcript = transcriber(wav)
     probe = audio_probe(wav)
@@ -383,11 +567,41 @@ def score_audio_pipeline(
 
     written = written_scorer(transcript)
 
-    composite = compose_composite(
+    raw_composite = compose_composite(
         written_score=float(written.get("composite", 0.0)),
         audio=dims,
         has_reference=has_reference,
     )
+
+    # Hallucination dim — only meaningful when we have a reference script.
+    if has_reference:
+        halluc = compute_hallucination_dim(reference_script or "", transcript)
+    else:
+        halluc = {
+            "score": 100.0,
+            "score_0_10": 10.0,
+            "extra_words": 0,
+            "transcript_word_count": word_count,
+            "script_word_count": 0,
+            "longest_match_coverage": 1.0,
+            "repeated_phrases": [],
+            "prefix_drift_ratio": 1.0,
+            "suffix_drift_ratio": 1.0,
+            "flags": [],
+            "penalties": {
+                "extra_words": 0.0,
+                "longest_match": 0.0,
+                "repeated_phrases": 0.0,
+                "edge_drift": 0.0,
+            },
+        }
+
+    capped_composite = (
+        apply_hallucination_cap(raw_composite, halluc["score"])
+        if apply_hallucination_cap_flag and has_reference
+        else raw_composite
+    )
+    cap_triggered = capped_composite < raw_composite
 
     return {
         "wav": str(wav),
@@ -399,6 +613,7 @@ def score_audio_pipeline(
             "fidelity": dims.fidelity,
             "pacing": dims.pacing,
             "silence_glitch": dims.silence_glitch,
+            "hallucination": halluc["score_0_10"],
         },
         "audio_diagnostics": {
             "word_count": dims.word_count,
@@ -412,8 +627,12 @@ def score_audio_pipeline(
             "clipping_detected": probe.clipping_detected,
             "max_volume_db": probe.max_volume_db,
         },
+        "hallucination": halluc,
         "written": written,
-        "composite": composite,
+        "composite": round(capped_composite, 2),
+        "composite_raw": raw_composite,
+        "hallucination_cap_triggered": cap_triggered,
+        "hallucination_cap_applied": bool(apply_hallucination_cap_flag and has_reference),
     }
 
 
@@ -473,6 +692,17 @@ def default_written_scorer(
 @click.option("--whisper-bin", default=WHISPER_BIN_DEFAULT, show_default=True)
 @click.option("--whisper-model", default=WHISPER_MODEL_DEFAULT, show_default=True)
 @click.option("--ffmpeg-bin", default=FFMPEG_BIN_DEFAULT, show_default=True)
+@click.option(
+    "--no-hallucination-cap",
+    "no_hallucination_cap",
+    is_flag=True,
+    default=False,
+    help=(
+        "Disable the hallucination composite cap. By default, composite is "
+        "capped at 75 when hallucination_score<70 and at 50 when <50. Use "
+        "this flag for raw-dim inspection during engine comparison."
+    ),
+)
 @click.option("--json", "as_json", is_flag=True, default=True, show_default=True)
 def cli(
     wav: Path,
@@ -484,6 +714,7 @@ def cli(
     whisper_bin: str,
     whisper_model: str,
     ffmpeg_bin: str,
+    no_hallucination_cap: bool,
     as_json: bool,
 ) -> None:
     if tier:
@@ -509,6 +740,7 @@ def cli(
         transcriber=_transcribe,
         audio_probe=_probe,
         written_scorer=written,
+        apply_hallucination_cap_flag=not no_hallucination_cap,
     )
     result["min_composite"] = min_composite
     result["pass"] = result["composite"] >= min_composite
@@ -518,9 +750,22 @@ def cli(
     else:
         status = "PASS" if result["pass"] else "FAIL"
         click.echo(f"status: {status}")
-        click.echo(f"composite: {result['composite']:.2f} (floor {min_composite})")
+        comp_line = f"composite: {result['composite']:.2f} (floor {min_composite})"
+        if result.get("hallucination_cap_triggered"):
+            comp_line += f"  [CAPPED from {result['composite_raw']:.2f}]"
+        click.echo(comp_line)
         click.echo(f"fidelity: {result['fidelity_pct']:.1f}%")
         click.echo(f"pacing:   {result['audio_diagnostics']['wpm']:.1f} wpm")
         click.echo(f"silences: {result['audio_diagnostics']['silence_count']}")
+        halluc = result.get("hallucination", {})
+        if halluc:
+            flags = halluc.get("flags", [])
+            click.echo(
+                f"halluc:   {halluc.get('score', 100):.1f}/100 "
+                f"({halluc.get('extra_words', 0)} extra words, "
+                f"longest-match {halluc.get('longest_match_coverage', 1.0):.2f})"
+            )
+            if flags:
+                click.echo(f"  flags:  {', '.join(flags)}")
 
     sys.exit(0 if result["pass"] else 2)
