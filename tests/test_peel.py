@@ -256,6 +256,32 @@ def test_word_count_matches_vale_tokenizer(sentence: str, expected: int):
 # Answers chosen to flex every branch of blocks 1+2.
 # Order: Q1.1, Q1.2, Q1.3, Q1.4, Q1.5, Q1.7-yn, (no exception details), Q1.8 default,
 #        Q2.1, Q2.2, Q2.3 default, Q2.4-yn
+# Five receipts drive Block 4 (min=5, no "add another").
+_BLOCK_4_INPUTS = []
+for i in range(5):
+    _BLOCK_4_INPUTS += [
+        "capability",                         # Q4.1
+        f"receipt_{i}",                       # Q4.2 key
+        f"We ship thing {i}.",                # Q4.3 claim
+        f"https://example.com/evidence/{i}",  # Q4.4 evidence
+        "public",                             # Q4.5 visibility
+        "never",                              # Q4.6 expires
+    ]
+# Only the 5th receipt prompts Q4.7 (add another). Answer 'n'.
+_BLOCK_4_INPUTS.append("n")
+
+# Block 6 inputs — non-banned Q6.2, exactly 3 for Q6.4+Q6.5, 3-8 sentences Q6.6.
+_BLOCK_6_INPUTS = [
+    "Acme Demo is a one-person consultancy. We build automations.",   # Q6.1
+    "We ship repeatable CLI tools and deliver deploy scripts.",       # Q6.2 (no banned)
+    "We refuse to sell retainers before a Peel session.",             # Q6.3
+    "Retainer upsells, mock tests, vibe-only deliverables",           # Q6.4 (3)
+    "GitHub receipts, benchmark logs, client permission slips",       # Q6.5 (3)
+    "I started shipping code in 2012. I burned out in 2020. "
+    "I rebuilt my stack in 2024. Now this.",                          # Q6.6 (4 sentences)
+]
+
+
 PIPED_ANSWERS = "\n".join(
     [
         "Acme Demo",                       # Q1.1 brand name
@@ -269,6 +295,9 @@ PIPED_ANSWERS = "\n".join(
         "I'm Alex. I ship.",               # Q2.2 variants
         "",                                # Q2.3 default (top-level-routes)
         "n",                               # Q2.4 no split
+        "n",                               # Q3.0 no methodology → block 3 skipped
+        *_BLOCK_4_INPUTS,                  # Block 4 RECEIPTS (real)
+        *_BLOCK_6_INPUTS,                  # Block 6 WE_ARE (real)
     ]
 )
 
@@ -281,12 +310,15 @@ def test_block1_and_block2_collect_required(brands_root: Path):
         input=PIPED_ANSWERS + "\n",
     )
     assert result.exit_code == 0, result.output
-    # Stub messages present for blocks 3-9
-    for n in (3, 4, 5, 6, 7, 8, 9):
+    # Block 3 is real now (Q3.0=n path exercised — prints omission notice, no stub).
+    # Stubs remain for 5, 7, 8, 9.
+    for n in (5, 7, 8, 9):
         assert f"[BLOCK {n}" in result.output, f"block {n} stub missing"
     # Checkpoint confirmations
     assert "IDENTITY locked" in result.output
     assert "CANON:" in result.output
+    assert "RECEIPTS locked" in result.output
+    assert "WE_ARE.md" in result.output
 
 
 def test_yaml_output_is_safe_loadable(brands_root: Path):
