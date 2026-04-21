@@ -1,0 +1,23 @@
+# rules/tenure_facts.yaml
+# Locked tenure numbers: 25+ years total, 12 years at ZIRKEL.
+# Stale numbers (14, 20, 24) in tenure context = fact-drift violation.
+# Implemented as existence regex combining stale number + tenure context word.
+extends: existence
+message: "Stale tenure number — canon is '25+ years' / '12 years at ZIRKEL'. Reject 14/20/24 in tenure context."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+# Pattern: stale number + year-word within ~80 chars of a tenure-context word.
+# Order-independent: (stale-yrs).{0,80}(tenure-context) OR the reverse.
+tokens:
+  - '\b(14|20|24)\s+years?\b[^.]{0,80}\b(ZIRKEL|operations?|experience|trench|career|industry)\b'
+  - '\b(ZIRKEL|operations?|experience|trench|career|industry)\b[^.]{0,80}\b(14|20|24)\s+years?\b'
+provenance:
+  source_voice_yaml_keys:
+    - trademarks.operator_tenure.stale_numbers_auto_reject
+  rule_of_five_origin: "session 15 2026-04-20 — tenure lock"
+acceptance_test:
+  should_fail_on: "Joshua has 14 years of operations experience."
+  should_pass_on: "Joshua has 25+ years in the operational trenches."

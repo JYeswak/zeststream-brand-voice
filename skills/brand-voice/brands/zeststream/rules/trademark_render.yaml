@@ -1,0 +1,31 @@
+# rules/trademark_render.yaml
+# Trademark rendering: "The Yuzu Method ®" requires ® on first use.
+# "Peel. Press. Pour.™" requires periods between words + ™ after Pour.
+# This rule file carries two conditional patterns — the loader runs each as
+# its own regex scan. Vale-equivalent: conditional. Our runtime treats each
+# token as a "fires when present" test with a sibling check for the required
+# adornment.
+extends: conditional
+message: "Trademark rendered without required symbol (® for Yuzu Method first use; ™ after Peel. Press. Pour.)"
+level: error
+scope: raw
+action:
+  name: auto_reject
+# Fires when match is present but no nearby adornment (® or ™) within 30 chars.
+conditions:
+  - name: yuzu_method_missing_registered
+    match: 'Yuzu Method'
+    require_near: '®'
+    window_chars: 30
+  - name: motto_missing_periods_or_tm
+    # Match the bare "Peel Press Pour" (no periods between words, no ™)
+    match: '\bPeel\s+Press\s+Pour\b'
+    require_near: null  # standalone pattern — its presence alone is the violation
+provenance:
+  source_voice_yaml_keys:
+    - trademarks.yuzu_method
+    - trademarks.motto
+  rule_of_five_origin: "canonical from THE-YUZU-METHOD.md"
+acceptance_test:
+  should_fail_on: "The Yuzu Method is great. Peel Press Pour."
+  should_pass_on: "The Yuzu Method ® is great. Peel. Press. Pour.™"

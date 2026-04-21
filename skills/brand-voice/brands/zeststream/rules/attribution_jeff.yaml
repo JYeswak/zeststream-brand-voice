@@ -1,0 +1,21 @@
+# rules/attribution_jeff.yaml
+# Jeff Emanuel (Dicklesworthstone) tools cannot be attributed to Joshua.
+# Tools: NTM, mcp-agent-mail, beads_rust, beads, CASS, Agent Mail.
+extends: existence
+message: "Do not claim to have built Jeff Emanuel's tools (NTM / Agent Mail / beads / CASS). Joshua is a user/contributor, not the author."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '\b(built|wrote|created|developed|authored|invented)\s+\w*\s*(NTM|mcp-agent-mail|Agent Mail|beads_rust|beads|CASS)\b'
+  - '\bmy (NTM|beads_rust|CASS|mcp-agent-mail)\b'
+provenance:
+  source_voice_yaml_keys:
+    - attribution_rules[jeff_emanuel_attribution_list]
+    - attribution_rules[jeff_tools_not_joshua]
+  rule_of_five_origin: "session 14 attribution_rules lock 2026-04-19"
+acceptance_test:
+  should_fail_on: "I built NTM from scratch for orchestration."
+  should_pass_on: "Joshua uses Jeff Emanuel's NTM for orchestration."

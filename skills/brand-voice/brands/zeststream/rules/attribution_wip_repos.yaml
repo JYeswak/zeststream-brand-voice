@@ -1,0 +1,21 @@
+# rules/attribution_wip_repos.yaml
+# Work-in-progress repos (cubcloud-bears, openclaw-smb) cannot appear in public
+# surfaces. approved_for_public=false.
+extends: existence
+message: "WIP repo mentioned in public copy — approved_for_public=false."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '\bcubcloud-bears\b'
+  - '\bopenclaw-smb\b'
+# This rule's scope is public surfaces; internal/private surfaces exempt.
+applies_to_surfaces: [hero, about, consult, post, meta, email]
+provenance:
+  source_voice_yaml_keys: ["attribution_rules[wip_repos_not_public]"]
+  rule_of_five_origin: "session 14 attribution lock 2026-04-19"
+acceptance_test:
+  should_fail_on: "Check out cubcloud-bears on GitHub"
+  should_pass_on: "Check out openfang on GitHub — 4.63B tokens/day."

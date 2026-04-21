@@ -1,0 +1,21 @@
+# rules/arithmetic_in_reply.yaml
+# Zest never does "N hours at $X" math — reject arithmetic in voice replies.
+extends: existence
+message: "Arithmetic in reply — 'N hours at $X' style math is banned (lets prospect calculate totals before scoping)."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '\d+\s*(hours?|hrs?)\s+at\s+\$\d+'
+  - '\d+\s*(hours?|hrs?)\s*×\s*\$\d+'
+  - '\d+\s*×\s*\$\d+'
+  - '\d+\s*\*\s*\$\d+'
+provenance:
+  source_voice_yaml_keys:
+    - voice_agent.runtime_gates.arithmetic_gate
+  rule_of_five_origin: "session 18 trauma 2026-04-20 — prospect doing arithmetic mid-intake"
+acceptance_test:
+  should_fail_on: "That's 40 hours at $150 each"
+  should_pass_on: "Book the Peel — real numbers come after scope."

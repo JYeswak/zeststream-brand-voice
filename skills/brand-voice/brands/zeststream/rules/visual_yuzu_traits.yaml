@@ -1,0 +1,45 @@
+# rules/visual_yuzu_traits.yaml
+# Operator Yuzu mascot image prompts must name the 8 required traits.
+# Vale rule type: occurrence — each trait must be named at least once.
+extends: occurrence
+message: "Yuzu mascot image prompt missing required trait(s). See character bible."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+# Each group is "any-of"; the prompt passes a group if any listed pattern matches.
+required_occurrences:
+  - name: one_leaf
+    pattern_any: ['\bone\s+(green\s+)?leaf\b', '\bsingle\s+(green\s+)?leaf\b', '\b1\s+leaf\b']
+    min: 1
+  - name: emerald_eyes
+    pattern_any: ['\bemerald[-\s]green\s+eyes\b', '\bemerald\s+eyes\b']
+    min: 1
+  - name: operator_expression
+    pattern_any: ['\boperator\s+(expression|yuzu)\b', '\bquiet\s+competent\s+smile\b']
+    min: 1
+  - name: canvas_apron
+    pattern_any: ['\bcanvas\s+apron\b']
+    min: 1
+  - name: cream_henley
+    pattern_any: ['\bcream\s+henley\b']
+    min: 1
+  - name: rolled_sleeves
+    pattern_any: ['\brolled\s+(to\s+)?(elbows|sleeves)\b', '\bsleeves\s+rolled\b']
+    min: 1
+  - name: clipboard
+    pattern_any: ['\bwood[-\s]handled\s+clipboard\b', '\bclipboard\b']
+    min: 1
+  - name: pixar_rendering
+    pattern_any: ['\b3D\s+Pixar\b', '\bPixar[-\s]quality\b', '\bPixar/DreamWorks\b', '\bDreamWorks\b']
+    min: 1
+provenance:
+  source_voice_yaml_keys:
+    - visual_identity.mascot.required_traits
+    - visual_identity.validation_checklist
+    - visual_identity.style
+  rule_of_five_origin: "session 15 2026-04-20 — Operator Yuzu canon lock"
+acceptance_test:
+  should_fail_on: "yuzu citrus fruit mascot with blue eyes and two leaves in cyberpunk neon"
+  should_pass_on: "Operator Yuzu with ONE green leaf, emerald-green eyes, quiet competent smile, cream henley sleeves rolled to elbows under canvas apron, wood-handled clipboard, 3D Pixar quality"

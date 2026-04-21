@@ -1,0 +1,28 @@
+# rules/a_pile_opener.yaml
+# Halbert's A-pile test: first 7 words decide whether a skeptic keeps reading.
+# Reject generic opener patterns ("We help businesses", "Our company provides",
+# "In today's fast-paced world", "Are you tired of"). Copy-craft gate.
+extends: existence
+message: "Weak A-pile opener — first 7 words must earn the second sentence. Rewrite with tension, a specific offer, or an unexpected fact."
+level: warning
+scope: raw
+ignorecase: true
+action:
+  name: flag_for_review
+# These fire when matched near the START of the text (first ~80 chars).
+# The runtime applies this rule only to the opener slice; loader adds
+# `^.{0,80}` guard internally when scoping to hero/meta/post.
+tokens:
+  - '^\s*We\s+help\s+businesses'
+  - '^\s*Our\s+company\s+provides'
+  - "^\\s*In\\s+today[''']s\\s+fast-paced\\s+world"
+  - '^\s*Are\s+you\s+tired\s+of'
+  - '^\s*I\s+help\s+business\s+owners'
+applies_to_surfaces: [hero, meta, post, email]
+provenance:
+  source_voice_yaml_keys:
+    - voice_agent.copy_craft_gates.gates[a_pile_pass]
+  rule_of_five_origin: "session 18 copy-craft gate lock 2026-04-20 — Ogilvy/Halbert/Hopkins"
+acceptance_test:
+  should_fail_on: "We help businesses automate their most painful workflows."
+  should_pass_on: "One week. $500 fixed. Joshua walks your systems and writes the Peel Report by Friday."

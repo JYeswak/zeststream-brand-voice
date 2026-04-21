@@ -1,0 +1,32 @@
+# rules/pricing_floor_leak.yaml
+# Trauma 2026-04-20: $3k floor + $100-175/hr leaked 4 times in one call.
+# Only two public prices: free 20-min Peel session + $500 Peel Report.
+extends: existence
+message: "Price floor leaked — internal scoping principle, not a public quote. Only public prices allowed: free Peel session, $500 Peel Report."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '\$3k\b'
+  - '\$3,000\b'
+  - '\bengagement minimum\b'
+  - '\bengagement floor\b'
+  - '\$100-175\b'
+  - '\$100-\$175\b'
+  - '\$100 to \$175\b'
+  - '\bper hour\b'
+  - '/hr\b'
+  - '\bhourly rate\b'
+  - '\bunder (his|my|our) (floor|minimum)\b'
+  - '\bbelow (his|my|our) floor\b'
+  - '\brouted? to DIY\b'
+  - '\d+\s+hours?\s+at\s+\$\d+'
+provenance:
+  source_voice_yaml_keys:
+    - voice_agent.price_floor_discussion.hard_reject_patterns
+  rule_of_five_origin: "session 18 trauma #14 2026-04-20 — price floor leaked 4x in voice demo"
+acceptance_test:
+  should_fail_on: "Joshua's engagement minimum is $3,000 at $100-175/hr"
+  should_pass_on: "The free 20-min Peel session is step one; $500 Peel Report if we go deeper."

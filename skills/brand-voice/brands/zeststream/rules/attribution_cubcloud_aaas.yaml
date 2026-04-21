@@ -1,0 +1,19 @@
+# rules/attribution_cubcloud_aaas.yaml
+# External copy must use "Remy" not the historical internal name "cubcloud-aaas".
+extends: substitution
+message: "cubcloud-aaas is the historical internal name — public copy must say 'Remy'."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+swap:
+  'cubcloud-aaas': 'Remy'
+# This rule's scope is external/public surfaces; internal YAML and code are exempt.
+applies_to_surfaces: [hero, about, consult, post, meta, email]
+provenance:
+  source_voice_yaml_keys: ["attribution_rules[cubcloud_aaas_old_name_external]"]
+  rule_of_five_origin: "rename_date 2026-04-19"
+acceptance_test:
+  should_fail_on: "cubcloud-aaas handles the inference layer"
+  should_pass_on: "Remy handles the inference layer"

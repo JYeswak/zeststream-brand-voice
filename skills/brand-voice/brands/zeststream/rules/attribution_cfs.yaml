@@ -1,0 +1,19 @@
+# rules/attribution_cfs.yaml
+# ClutterFreeSpaces (CFS) relationship is NOT arms-length (personal relationship, Chanel).
+# Reject copy that frames CFS as a cold/arms-length client acquisition.
+extends: existence
+message: "CFS/ClutterFreeSpaces framed as arms-length — this relationship is personal (Chanel) and cannot be framed that way."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '(ClutterFreeSpaces|Clutter Free Spaces|\bCFS\b).{0,80}(cold|arms.length|arms-length|first.contact|unknown|stranger)'
+  - '(cold|arms.length|arms-length|first.contact|unknown|stranger).{0,80}(ClutterFreeSpaces|Clutter Free Spaces|\bCFS\b)'
+provenance:
+  source_voice_yaml_keys: ["attribution_rules[cfs_not_arms_length]"]
+  rule_of_five_origin: "session 14 attribution lock 2026-04-19 — Chanel disclosure policy"
+acceptance_test:
+  should_fail_on: "CFS was a cold arms-length client win for us"
+  should_pass_on: "ClutterFreeSpaces has been a client since August 2025."

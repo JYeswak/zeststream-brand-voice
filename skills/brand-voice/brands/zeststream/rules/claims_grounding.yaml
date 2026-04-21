@@ -1,0 +1,37 @@
+# rules/claims_grounding.yaml
+# Numeric / capability claims must resolve to capabilities-ground-truth.yaml.
+# Session 16 trauma: Zest fabricated "50+ intros/month", "2% bounces",
+# "15+ hrs/week saved", "SHA on his repo". Grounding gate must enforce
+# on every utterance, not just turn 1.
+# The runtime cross-checks each hit against data/capabilities-ground-truth.yaml
+# and only fires if no matching record is present. For the static rule-file
+# test we treat all these patterns as violations pending ground-truth lookup.
+extends: existence
+message: "Ungrounded specific claim — numbers/percentages/time durations must match data/capabilities-ground-truth.yaml."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  # Examples of forbidden fabrications per voice.yaml voice_agent.runtime_gates.grounding_gate
+  - '\d+\+?\s*(qualified\s+)?(intros?|leads?)(\s*/\s*(month|mo|week|wk))?'
+  - 'under\s+\d+(\.\d+)?%\s*(bounce|conversion|error)'
+  - '\d+(\.\d+)?%\s*(bounce|conversion|click[-\s]?through|uplift|efficiency)'
+  - '\d+\+?\s*hours?\s*(a\s+|per\s+|/\s*)?(week|wk|month|mo|day)\b'
+  - 'saving\s+(clients?\s+)?\d+\+?\s*(hours?|hrs?|weeks?)'
+  - 'saves\s+(clients?\s+)?\d+\+?\s*(hours?|hrs?)'
+  - '\d+(\.\d+)?x\s+(time\s+)?savings'
+  - 'full\s+SHA\s+on\s+(his|Joshua.?s|my)\s+repo'
+  - '\d+-step\s+(video|pipeline)\s+processor'
+  - '\d+[-\s]node\s+workflow'
+ground_truth_source: "data/capabilities-ground-truth.yaml"
+on_miss_response: "I don't want to quote a number I can't back up. Email joshua@zeststream.ai for real receipts."
+provenance:
+  source_voice_yaml_keys:
+    - claims
+    - voice_agent.runtime_gates.grounding_gate
+  rule_of_five_origin: "session 16 2026-04-20 — Zest fabrication trauma, 4 fabrications in one call"
+acceptance_test:
+  should_fail_on: "Joshua saves clients 15 hours a week on average"
+  should_pass_on: "Joshua quotes real numbers after he sees the workflow."

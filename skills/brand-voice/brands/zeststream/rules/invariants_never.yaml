@@ -1,0 +1,27 @@
+# rules/invariants_never.yaml
+# Invariant NEVER rules — one-line bans that apply to all surfaces.
+# em-dash as dramatic pause, three-part rhythmic list, doomer framing, etc.
+extends: existence
+message: "Invariant-never violation: %s"
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  # Three-part rhythmic list ("efficient, scalable, and reliable")
+  - '\b\w+,\s+\w+,\s+and\s+\w+\b'
+  # "Pour" used as a verb ("Pour the handoff")
+  - '\bPour\s+the\b'
+  # Doomer / apocalyptic framing about AI
+  - '\bAI\s+(apocalypse|doom|destruction|threat to humanity)\b'
+  - '\b(extinction-level|existential)\s+(AI\s+)?risk'
+  # Enemy framing of competitors / consultants
+  - '\b(big\s+consultancies?|slide[-\s]deck\s+consultants?)\s+(are|is)\s+(killing|destroying|ruining)'
+provenance:
+  source_voice_yaml_keys:
+    - invariants.never
+  rule_of_five_origin: "voice.yaml invariants — canonical session-3 lock"
+acceptance_test:
+  should_fail_on: "Our solutions are efficient, scalable, and reliable."
+  should_pass_on: "Joshua builds working systems and hands you the receipt."

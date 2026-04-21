@@ -1,0 +1,29 @@
+# rules/attribution_terratitle.yaml
+# terratitle frontend claims require caveat (rebuilt/contributed/input) or
+# must narrow to backend/database only. Backend/DB are 100% Joshua.
+extends: conditional
+message: "terratitle + frontend requires caveat or narrow to backend/database only."
+level: warning
+scope: raw
+ignorecase: true
+action:
+  name: flag_for_review
+conditions:
+  - name: terratitle_frontend_without_caveat
+    # Match co-occurrence of "terratitle" and "frontend" within 50 chars
+    match_any:
+      - 'terratitle.{0,50}frontend'
+      - 'frontend.{0,50}terratitle'
+    # If this token appears nearby (within 80 chars), the claim is OK.
+    require_near_any:
+      - 'rebuilt'
+      - 'contributed'
+      - 'input'
+      - 'later'
+    window_chars: 80
+provenance:
+  source_voice_yaml_keys: ["attribution_rules[terratitle_frontend_caveat_required]"]
+  rule_of_five_origin: "session 14 attribution lock 2026-04-19"
+acceptance_test:
+  should_fail_on: "I built the terratitle frontend"
+  should_pass_on: "I rebuilt the terratitle frontend from scratch after the CubCloud dev contributed input later"

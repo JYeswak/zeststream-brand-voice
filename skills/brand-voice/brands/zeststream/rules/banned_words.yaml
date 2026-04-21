@@ -1,0 +1,54 @@
+# rules/banned_words.yaml
+# Slide-deck / consultant / AI-slop lexical banlist.
+# Vale rule type: existence — fires on any token in the list.
+extends: existence
+message: "Banned word '%s' — consultant/slop vocabulary. Rewrite with a specific, operator verb."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '\benterprise\b'
+  - '\btransformation\b'
+  - '\borchestration\b'
+  - '\bplatform\b'
+  - '\becosystem\b'
+  - '\bsynergize\b'
+  - '\bsynergy\b'
+  - '\bholistic\b'
+  - '\bturnkey\b'
+  - '\bend-to-end\b'
+  - '\bcutting-edge\b'
+  - '\bstate-of-the-art\b'
+  - '\bbest-in-class\b'
+  - '\bnext-generation\b'
+  - '\bmission-critical\b'
+  - '\bparadigm\b'
+  - '\bhandoff\b'
+  - '\bartifact\b'
+  - '\bstakeholder\b'
+  - '\bdeliverable\b'
+  - '\bbandwidth\b'
+  - '\bcircle back\b'
+  - '\btouch base\b'
+  - '\boperationalize\b'
+  - '\bactionable\b'
+  - '\balignment\b'
+  - '\bdeep-dive\b'
+  - '\bharness the power\b'
+  - '\brevolutionize\b'
+  - '\bgame-changing\b'
+  - '\bseamless\b'
+  - '\brobust\b'
+  - '\bmove the needle\b'
+  - '\bboil the ocean\b'
+  - '\blow-hanging fruit\b'
+  - '\bat the end of the day\b'
+  - '\butilize\b'
+provenance:
+  source_voice_yaml_keys: [banned_words]
+  rule_of_five_origin: "session-4 2026-04-19 /consult Round 6 — enterprise/platform recurrence"
+acceptance_test:
+  should_fail_on: "our enterprise platform leverages synergy"
+  should_pass_on: "Joshua built a 56-county data pipeline for a title company."

@@ -1,0 +1,34 @@
+# rules/three_moves_present.yaml
+# Conversion surfaces must show all three moves:
+#   1. Name Joshua (name_person)
+#   2. Show a receipt (number, repo, SHA, workflow count)
+#   3. Invitation, not pitch
+# Vale rule type: occurrence — each pattern must occur ≥1 time.
+extends: occurrence
+message: "Three moves not all present (name / receipt / invitation)."
+level: warning
+scope: raw
+action:
+  name: flag_for_review
+# Each "pattern" must match at least min=1 time in the document.
+required_occurrences:
+  - name: name_person
+    pattern: '\bJoshua\b'
+    min: 1
+  - name: show_receipt
+    # A number + unit, a $ amount, a repo link, or a recognized capability verb
+    pattern: '(\d[\d,]*\s*(tok/s|workflows?|chunks?|years?|hours?|weeks?|months?|days?|GPUs?|containers?|scripts?|clients?|repos?|counties?)|\$\d[\d,]*(k|K)?|github\.com/\S+|\b(built|rebuilt|tuned|deployed|shipped|wired)\b)'
+    min: 1
+  - name: invite_not_pitch
+    # Invitation signals: "Peel", "email joshua@", "book a", "DM", "let me know"
+    pattern: '(\bPeel(\s+session|\s+Report)?\b|joshua@zeststream\.ai|\bbook\s+a\b|\bDM\s+me\b|\blet me know\b|\bmap call\b)'
+    min: 1
+applies_to_surfaces: [hero, about, consult, post]
+provenance:
+  source_voice_yaml_keys:
+    - three_moves
+    - rubric.dimensions[person_named,receipt_shown,invite_not_pitch]
+  rule_of_five_origin: "canonical — conversion surfaces require all three moves"
+acceptance_test:
+  should_fail_on: "Transform your business with cutting-edge AI solutions."
+  should_pass_on: "Joshua deployed openfang at 4.63B tokens/day. Book a free 20-min Peel session — email joshua@zeststream.ai."

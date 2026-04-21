@@ -1,0 +1,34 @@
+# rules/client_name_leak.yaml
+# Confidential clients cannot be named on public surfaces.
+# Private: Blackfoot Telecom, ALPS Insurance, TerraTitle, VRTX Gym, CFS.
+# This rule's token list is the authoritative public-surface block.
+# Data source: see voice.yaml:confidentiality.clients_private.
+extends: existence
+message: "Confidential client named on public surface — approved_for_public=false."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '\bBlackfoot Telecom\b'
+  - '\bBlackfoot\b'
+  - '\bALPS Insurance\b'
+  - '\bALPS\b'
+  - '\bTerraTitle\b'
+  - '\bTerra Title\b'
+  - '\bVRTX\b'
+  - '\bVRTX Gym\b'
+  - '\bClutterFreeSpaces\b'
+  - '\bClutter Free Spaces\b'
+  - '\bCFS\b'
+# Scope: public surfaces only. Internal/private surfaces exempt.
+applies_to_surfaces: [hero, about, consult, post, meta, email, voice_channel]
+provenance:
+  source_voice_yaml_keys:
+    - confidentiality.clients_private
+    - confidentiality.rules
+  rule_of_five_origin: "session 15+ 2026-04-20 — grok-voice-demo surfaced Blackfoot/ALPS/TerraTitle in cold call"
+acceptance_test:
+  should_fail_on: "I worked with Blackfoot Telecom on their OSS migration"
+  should_pass_on: "I can't share client work publicly without sign-off. Email joshua@zeststream.ai."

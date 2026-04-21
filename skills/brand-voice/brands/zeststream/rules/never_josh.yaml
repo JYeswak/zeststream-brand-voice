@@ -1,0 +1,24 @@
+# rules/never_josh.yaml
+# Canonical-name enforcement. Joshua is the operator name. "Josh" is banned.
+# Trauma 2026-04-19: operator_variants_banned locked.
+# Trauma 2026-04-20: never_joshua block was inverted once — this rule must fire
+# on "Josh" and NEVER on "Joshua".
+extends: existence
+message: "Use 'Joshua' (canonical), never 'Josh', 'Josh Nowak', or 'J. Nowak'."
+level: error
+scope: raw
+action:
+  name: auto_reject
+tokens:
+  - '\bJosh\b'
+  - '\bJosh Nowak\b'
+  - '\bJ\.\s*Nowak\b'
+  - '\bJ Nowak\b'
+provenance:
+  source_voice_yaml_keys:
+    - brand.operator_variants_banned
+    - trademarks.brand_names.never_joshua
+  rule_of_five_origin: "trauma 2026-04-19, re-traumatized 2026-04-20 by inverted never_joshua block"
+acceptance_test:
+  should_fail_on: "Hi I am Josh, the founder."
+  should_pass_on: "Hi I am Joshua, the founder."

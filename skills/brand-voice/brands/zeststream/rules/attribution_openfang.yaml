@@ -1,0 +1,21 @@
+# rules/attribution_openfang.yaml
+# openfang is RightNow-AI upstream. Joshua deployed it; he did not build it.
+extends: substitution
+message: "openfang is upstream work — use 'deployed' / 'run', never 'built' / 'wrote'."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+# Each entry: pattern → suggested replacement
+swap:
+  'built\s+(\w*\s*)?openfang': 'deployed $1openfang'
+  'wrote\s+(\w*\s*)?openfang': 'deployed $1openfang'
+  'created\s+(\w*\s*)?openfang': 'deployed $1openfang'
+  'developed\s+(\w*\s*)?openfang': 'deployed $1openfang'
+provenance:
+  source_voice_yaml_keys: ["attribution_rules[openfang_deployed_not_built]"]
+  rule_of_five_origin: "session 14 attribution lock 2026-04-19"
+acceptance_test:
+  should_fail_on: "Joshua built openfang from scratch"
+  should_pass_on: "Joshua deployed openfang at 4.63B tokens/day"

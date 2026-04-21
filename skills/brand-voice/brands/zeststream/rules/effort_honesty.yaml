@@ -1,0 +1,42 @@
+# rules/effort_honesty.yaml
+# Downplaying effort burns trust. No "easy/quick/morning/prototype" paired
+# with scope words (build, pipeline, automation, integration, system, workflow).
+extends: conditional
+message: "Effort dishonesty — 'easy/quick/morning' paired with scope word ('build/pipeline/automation/integration/system/workflow')."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+conditions:
+  - name: scope_word_plus_minimizer
+    # BOTH a scope word and a minimizer must appear within the same utterance
+    # (~120 chars) to fire.
+    require_all_match:
+      scope_words:
+        - '\bbuild\b'
+        - '\bpipeline\b'
+        - '\bautomation\b'
+        - '\bintegration\b'
+        - '\bsystem\b'
+        - '\bworkflow\b'
+        - '\bsetup\b'
+      minimizers:
+        - '\beasy\b'
+        - '\bquick\b'
+        - '\bsimple\b'
+        - '\bmorning\b'
+        - '\bprototype\b'
+        - '\bcouple hours\b'
+        - '\ba few hours\b'
+        - '\bout of the box\b'
+        - '\bstarter\b'
+        - '\blow[- ]effort\b'
+    window_chars: 120
+provenance:
+  source_voice_yaml_keys:
+    - voice_agent.effort_honesty.hard_reject_patterns_in_scope_context
+  rule_of_five_origin: "session 18 trauma #15 2026-04-20 — Zest said 'prototypes in a morning' for multi-system pipeline"
+acceptance_test:
+  should_fail_on: "That build is quick and easy"
+  should_pass_on: "That build takes real work — probably 40 to 80 hours end to end."

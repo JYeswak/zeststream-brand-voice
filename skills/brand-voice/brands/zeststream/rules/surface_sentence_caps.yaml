@@ -1,0 +1,25 @@
+# rules/surface_sentence_caps.yaml
+# Per-surface sentence-length caps (metric rule).
+# hero ≤18 words, body ≤25, cta ≤12, email ≤22, post ≤25, meta ≤20.
+extends: metric
+message: "Sentence exceeds surface word cap — %s words, max %s for this surface."
+level: warning
+scope: raw
+action:
+  name: flag_for_review
+metric: sentence_max_words
+per_surface_limits:
+  hero: 18
+  body: 25
+  cta: 12
+  email: 22
+  post: 25
+  meta: 20
+  default: 25
+provenance:
+  source_voice_yaml_keys:
+    - surfaces
+  rule_of_five_origin: "voice.yaml surfaces matrix — canonical"
+acceptance_test:
+  should_fail_on: "A very long hero line that easily exceeds the eighteen word cap and keeps going on past the limit indeed it does."
+  should_pass_on: "Joshua builds things that work."

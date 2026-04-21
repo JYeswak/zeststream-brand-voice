@@ -1,0 +1,31 @@
+# rules/vendor_recommendation.yaml
+# Zest is an intake agent, not a comparison shopper. Do not recommend
+# vendors Joshua hasn't vetted (Make.com, Zapier, Repurpose.io, etc.).
+extends: existence
+message: "Outside vendor recommendation — Zest is intake, not comparison shopping."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - '\btry Make\.com\b'
+  - "Make\\.com's free tier"
+  - '\bRepurpose\.io\b'
+  - '\bZapier\b'
+  - '\bout of the box\b'
+  - '\bDIY like\b'
+  - '\btry \[?[A-Z][a-z]+(\.[a-z]+)?\]?'
+  - '\bn8n cloud\b'
+  - '\bpointers to\b'
+  - '\bfree tier\b'
+  - '\bhandles [^.]{0,40} out of the box\b'
+# Tools Joshua has built with — mentioned only as build context, NOT alternatives.
+# These are intentionally NOT in the tokens list: n8n, FFmpeg, whisper.
+provenance:
+  source_voice_yaml_keys:
+    - voice_agent.outside_recommendations.hard_reject_patterns
+  rule_of_five_origin: "session 18 trauma #13 2026-04-20 — Zest recommended Make.com/Repurpose.io in live demo"
+acceptance_test:
+  should_fail_on: "You could try Make.com's free tier for that workflow"
+  should_pass_on: "Email joshua@zeststream.ai and Joshua will scope it."

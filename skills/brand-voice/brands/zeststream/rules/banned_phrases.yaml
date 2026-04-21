@@ -1,0 +1,31 @@
+# rules/banned_phrases.yaml
+# Rhetorical patterns and verb-form banned words.
+extends: existence
+message: "Banned phrase/verb '%s' — rhetorical slop or consultant tic."
+level: error
+scope: raw
+ignorecase: true
+action:
+  name: auto_reject
+tokens:
+  - "Not just .* but"
+  - "It's not .*, it's"
+  - "In today's world"
+  - "In an era of"
+  - '\bempower\b'
+  - '\bunlock\b'
+  - '\bleverage\b'
+  - '\bstreamline\b'
+  - "we're excited to announce"
+  - "proud to partner with"
+  - "our mission is to"
+  - '\bour team\b'
+  - "ZestStream delivers"
+  - "we built"
+  - "we offer"
+provenance:
+  source_voice_yaml_keys: [banned_phrases, banned_words]
+  rule_of_five_origin: "multiple sessions — 'empower'/'leverage' verb form recurrence"
+acceptance_test:
+  should_fail_on: "In today's world we empower teams to leverage synergy"
+  should_pass_on: "Joshua rebuilt the title pipeline in a morning."
