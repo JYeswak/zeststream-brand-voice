@@ -1,0 +1,133 @@
+# Canonical @zeststream/security-hygiene .gitleaks.toml template — v0.0.1
+#
+# Hardened via 3 independent ratifications:
+#   - josh-ops (htv0d / commit 6bd3423)        — MISSING-COVERAGE-FILTERING
+#   - terratitle (k8o1c / commit 2400422)      — MISCONFIGURATION-SURFACING
+#   - alpsinsurance (1hn11 / commit 5bcbeabc)  — REFINEMENT-NOT-SURFACING
+#
+# This is the canonical TWO-LAYER-GITLEAKS-ALLOWLIST pattern. Adopt
+# verbatim and customize the paths + regexes + custom rules sections to
+# match your repo's directory conventions + secret prefix families.
+#
+# Maintenance protocol:
+#   1. Add NEW custom-rule blocks when a new internal-prefix family is
+#      introduced (ALPS pattern; see alps-db-password-assignment below).
+#   2. Add path-allowlist entries for any directory containing
+#      intentional example/test/research/doc payloads.
+#   3. Add regex-allowlist entries for documented placeholder patterns.
+#   4. Add stopwords for repeatedly-flagged false-positive literals.
+#   5. Re-run `gitleaks detect` after each change; verify zero NEW
+#      surfaced secrets are real (not just false-positives moved).
+
+title = "zeststream-brand-voice gitleaks config — canonical TWO-LAYER pattern"
+
+# Layer 0: extend the default v8 rule set. THIS LINE IS LOAD-BEARING —
+# without it, gitleaks silently disables all default rules and the
+# scan returns false-CLEAN. The terratitle ratification (k8o1c)
+# surfaced 2 previously-invisible secrets when this line was added.
+[extend]
+useDefault = true
+
+# Optional: custom rules layer (ALPS pattern). Use when a repo-specific
+# secret shape is not caught by default rules. Example: ALPS shipped
+# alps-db-password-assignment to catch committed DB_PASSWORD=<val>
+# assignments that default generic-api-key sometimes missed.
+#
+# [[rules]]
+# id = "{{REPO}}-db-password-assignment"
+# description = "Detect committed DB_PASSWORD assignments"
+# regex = '''(?i)\bDB_PASSWORD\s*=\s*['"]?([^\s'"]{12,})['"]?'''
+# secretGroup = 1
+# keywords = ["DB_PASSWORD"]
+
+[allowlist]
+description = """
+Path + regex + stopwords allowlists for documented placeholder content.
+External vendor prefixes (sk-ant-*, sk-proj-*, xai-*, AKIA*, ghp_*, etc.)
+are NOT allowlisted — default gitleaks rules continue to catch them.
+"""
+
+# Layer 1: path-allowlist for documented example/test/research/doc paths.
+# Customize for your repo's directory conventions. The patterns below
+# are the union of josh-ops + terratitle + ALPS path-allowlists.
+paths = [
+    # Example/template files (canonical across all 3 ratifications).
+    '''\.env\.example''',
+    '''\.env\.local\.example''',
+    '''.*\.env.*\.example$''',
+    '''.*\.example\..*''',
+
+    # Tests (backend AND frontend; ALPS+terratitle convention).
+    '''(^|/)tests/.*''',
+    '''(^|/)backend/tests/.*''',
+    '''(^|/)frontend/tests/.*''',
+    '''.*test.*\.(py|sh|js|ts|md)''',
+
+    # Planning + research + doctrine (terratitle + josh-ops convention).
+    '''PLAN-.*\.md''',
+    '''.*PLAN\.md''',
+    '''\.planning/.*\.md''',
+    '''\.flywheel/doctrine/.*\.md''',
+    '''\.RESEARCH_OUTPUT/.*''',
+
+    # Docs + README + quickstart (canonical).
+    '''docs/.*\.md''',
+    '''README\.md''',
+    '''.*README\.md''',
+    '''QUICKSTART.*\.(md|sh)''',
+    '''CHANGELOG\.md''',
+
+    # Reference-pattern code from other projects (ALPS convention).
+    '''(^|/)reference-patterns/''',
+
+    # Backup files.
+    '''.*\.bak\..*''',
+
+    # CI workflows use fake env values (ALPS convention).
+    '''(^|/)\.github/workflows/.*\.ya?ml$''',
+    '''(^|/)\.gitea/workflows/.*\.ya?ml$''',
+
+    # Generated/derived files (ALPS convention).
+    '''(^|/)\.beads/''',
+    '''(^|/)backend/\.beads/''',
+    '''(^|/)\.ecosystem/''',
+    '''(^|/)backend/\.venv/''',
+    '''(^|/)node_modules/''',
+    '''(^|/)__pycache__/''',
+]
+
+# Layer 2: regex-allowlist for documented internal-prefix families and
+# placeholder patterns. Customize per consumer.
+regexes = [
+    # LAN-private LLM gateway family (Bifrost localhost:8991 + Langfuse
+    # RFC1918 10.10.20.10:3200). Wire when consuming internal LLM infra;
+    # safe to include even when not consuming (forward-compat).
+    '''sk-bf-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}''',
+    '''sk-lf-[a-f0-9-]+''',
+    '''pk-lf-[a-f0-9-]+''',
+    '''sk-bv-[a-f0-9-]+''',
+
+    # Fixtures + placeholder syntax (ALPS pattern).
+    '''pat-na1-0000''',
+    '''test-secret-key''',
+    '''test-[a-z0-9-]*secret[a-z0-9-]*''',
+    '''[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}''',
+    '''NEXT_PUBLIC_[A-Z0-9_]+''',
+    '''SENTRY_AUTH_TOKEN''',
+    '''<[^>\n]*(?:secret|token|key|password)[^>\n]*>''',
+    '''eyJ[A-Za-z0-9_-]*\.\.\.''',
+    '''your[-_][a-z0-9_-]*(?:secret|token|key|password)[a-z0-9_-]*''',
+]
+
+# Stopwords: canonical placeholder strings that should never be
+# classified as secrets regardless of entropy. Hardened across all 3
+# ratifications.
+stopwords = [
+    "REPLACE_ME",
+    "REDACTED",
+    "PLACEHOLDER",
+    "EXAMPLE_VALUE",
+    "YOUR_KEY_HERE",
+    "CHANGEME",
+    "your-api-key-here",
+]
